@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  password  String
+  role      String   @default("DRIVER") // ADMIN, SHOP, DRIVER
+  points    Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shops           Shop[]
+  deliveryOffers  DeliveryOffer[]
+  pointsTransactions PointsTransaction[]
+  ordersCreated   Order[]      @relation("OrderCreator")
+  ordersAccepted  Order[]      @relation("AcceptedDriver")
+}
+
+model Shop {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   @default("OTHER") // PHARMACY, SUPERMARKET, RESTAURANT, OTHER
+  address   String
+  phone     String
+  active    Boolean  @default(true)
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  shopId          String
+  shop            Shop     @relation(fields: [shopId], references: [id])
+  description     String
+  pickupAddress   String
+  deliveryAddress String
+  status          String   @default("PENDING") // PENDING, OFFERED, ACCEPTED, PICKED_UP, DELIVERED, CANCELLED
+  deliveryFee     Float    @default(0)
+  pointsCost      Int      @default(1)
+  createdById     String
+  createdBy       User     @relation("OrderCreator", fields: [createdById], references: [id])
+  acceptedDriverId String?
+  acceptedDriver   User?   @relation("AcceptedDriver", fields: [acceptedDriverId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  offers DeliveryOffer[]
+}
+
+model DeliveryOffer {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  driverId  String
+  driver    User     @relation(fields: [driverId], references: [id])
+  price     Float
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PointsTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Int      // positive = purchase/earning, negative = usage
+  type        String   // PURCHASE, USAGE, EARNING
+  description String
+  createdAt   DateTime @default(now())
+}
