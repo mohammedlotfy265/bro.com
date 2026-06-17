@@ -23,6 +23,7 @@ model User {
   pointsTransactions PointsTransaction[]
   ordersCreated   Order[]      @relation("OrderCreator")
   ordersAccepted  Order[]      @relation("AcceptedDriver")
+  paymentRequests PaymentRequest[]
 }
 
 model Shop {
@@ -80,4 +81,20 @@ model PointsTransaction {
   type        String   // PURCHASE, USAGE, EARNING
   description String
   createdAt   DateTime @default(now())
+}
+
+model PaymentRequest {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  amount          Int      // number of points requested
+  paymentMethod   String   // VODAFONE_CASH, INSTAPAY, ORANGE_CASH
+  senderPhone     String   // phone number the user sent from
+  senderName      String   // name on the payment account
+  receiptNumber   String?  // receipt/reference number from the transfer
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  adminNote       String?  // note from admin when approving/rejecting
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

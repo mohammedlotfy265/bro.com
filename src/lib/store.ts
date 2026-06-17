@@ -58,6 +58,31 @@ export interface PointsTransaction {
   createdAt: string;
 }
 
+export interface PaymentRequest {
+  id: string;
+  userId: string;
+  amount: number;
+  paymentMethod: string;
+  senderPhone: string;
+  senderName: string;
+  receiptNumber: string | null;
+  status: string;
+  adminNote: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  user: { id: string; name: string; phone: string; points?: number };
+}
+
+export interface PaymentMethodConfig {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  accountName: string;
+  accountPhone: string;
+  instructions: string;
+}
+
 type ViewType =
   | 'login'
   | 'register'
@@ -65,6 +90,7 @@ type ViewType =
   | 'admin-shops'
   | 'admin-users'
   | 'admin-orders'
+  | 'admin-payments'
   | 'shop-dashboard'
   | 'shop-create-order'
   | 'shop-orders'

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAppStore, type User, type Shop, type Order, type DeliveryOffer, type PointsTransaction } from '@/lib/store';
+import { useAppStore, type User, type Shop, type Order, type DeliveryOffer, type PointsTransaction, type PaymentRequest, type PaymentMethodConfig } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import {
   Store, Truck, Users, Package, Coins, LogOut, Menu, X, Plus, CheckCircle,
   XCircle, Clock, MapPin, Phone, Star, TrendingUp, ShoppingCart, ArrowLeft,
   Home as HomeIcon, ClipboardList, DollarSign, Gift, ChevronLeft, Settings, UserPlus,
-  Building2, CircleDot
+  Building2, CircleDot, Wallet, CreditCard, Copy, Check
 } from 'lucide-react';
 
 // ============== API HELPERS ==============
@@ -311,6 +311,7 @@ function AdminSidebar() {
     { id: 'admin-shops', label: 'المحلات', icon: Building2 },
     { id: 'admin-users', label: 'المستخدمين', icon: Users },
     { id: 'admin-orders', label: 'الطلبات', icon: ClipboardList },
+    { id: 'admin-payments', label: 'طلبات الدفع', icon: Wallet },
   ];
 
   return (
@@ -1688,40 +1689,101 @@ function DriverPoints() {
   const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
   const [currentPoints, setCurrentPoints] = useState(user?.points || 0);
   const [loading, setLoading] = useState(true);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodConfig[]>([]);
+  const [pointPrice, setPointPrice] = useState(1);
+
+  // Payment form state
+  const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [purchasing, setPurchasing] = useState(false);
+  const [senderPhone, setSenderPhone] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [receiptNumber, setReceiptNumber] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [myPayments, setMyPayments] = useState<PaymentRequest[]>([]);
+  const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    api.get(`/api/points?userId=${user.id}`).then((data) => {
-      if (data.transactions) setTransactions(data.transactions);
-      if (data.currentPoints !== undefined) setCurrentPoints(data.currentPoints);
+    Promise.all([
+      api.get(`/api/points?userId=${user.id}`),
+      api.get('/api/settings/payment-methods'),
+      api.get(`/api/payments?userId=${user.id}`),
+    ]).then(([pointsData, methodsData, paymentsData]) => {
+      if (pointsData.transactions) setTransactions(pointsData.transactions);
+      if (pointsData.currentPoints !== undefined) setCurrentPoints(pointsData.currentPoints);
+      if (methodsData.paymentMethods) setPaymentMethods(methodsData.paymentMethods);
+      if (methodsData.pointPrice) setPointPrice(methodsData.pointPrice);
+      if (paymentsData.payments) setMyPayments(paymentsData.payments);
       setLoading(false);
     });
   }, [user]);
 
-  const handlePurchase = async () => {
+  const handleCopyPhone = (phone: string, methodId: string) => {
+    navigator.clipboard.writeText(phone);
+    setCopied(methodId);
+    setTimeout(() => setCopied(null), 2000);
+    toast({ title: 'تم النسخ!', description: `تم نسخ الرقم ${phone}` });
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!user) return;
     const amount = parseInt(purchaseAmount);
     if (!amount || amount <= 0) {
       toast({ title: 'خطأ', description: 'اختر عدد النقاط', variant: 'destructive' });
       return;
     }
-    setPurchasing(true);
-    const data = await api.post('/api/points', { userId: user.id, amount });
+    if (!selectedMethod) {
+      toast({ title: 'خطأ', description: 'اختر طريقة الدفع', variant: 'destructive' });
+      return;
+    }
+    if (!senderPhone || !senderName) {
+      toast({ title: 'خطأ', description: 'اكتب بيانات المرسل', variant: 'destructive' });
+      return;
+    }
+
+    setSubmitting(true);
+    const data = await api.post('/api/payments', {
+      userId: user.id,
+      amount,
+      paymentMethod: selectedMethod,
+      senderPhone,
+      senderName,
+      receiptNumber: receiptNumber || null,
+    });
     if (data.error) {
       toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
     } else {
-      toast({ title: 'تم!', description: `تم شراء ${amount} نقطة بنجاح` });
-      setCurrentPoints(data.user?.points || currentPoints + amount);
-      setUser({ ...user, points: data.user?.points || currentPoints + amount });
+      toast({ title: 'تم إرسال الطلب!', description: 'استنى للأدمن يapprove طلبك والنقاط هتتنزل تلقائي' });
+      setShowPaymentForm(false);
       setPurchaseAmount('');
-      // Reload transactions
-      api.get(`/api/points?userId=${user.id}`).then((d) => {
-        if (d.transactions) setTransactions(d.transactions);
-      });
+      setSenderPhone('');
+      setSenderName('');
+      setReceiptNumber('');
+      setSelectedMethod('');
+      // Reload payments
+      const paymentsData = await api.get(`/api/payments?userId=${user.id}`);
+      if (paymentsData.payments) setMyPayments(paymentsData.payments);
     }
-    setPurchasing(false);
+    setSubmitting(false);
+  };
+
+  const paymentMethodLabels: Record<string, string> = {
+    VODAFONE_CASH: 'فودافون كاش',
+    INSTAPAY: 'إنستاباي',
+    ORANGE_CASH: 'أورنج كاش',
+  };
+
+  const paymentStatusLabels: Record<string, string> = {
+    PENDING: 'في الانتظار',
+    APPROVED: 'تم القبول',
+    REJECTED: 'مرفوض',
+  };
+  const paymentStatusColors: Record<string, string> = {
+    PENDING: 'bg-yellow-100 text-yellow-800',
+    APPROVED: 'bg-emerald-100 text-emerald-800',
+    REJECTED: 'bg-red-100 text-red-800',
   };
 
   const typeLabels: Record<string, string> = {
@@ -1735,13 +1797,16 @@ function DriverPoints() {
     EARNING: 'text-emerald-600',
   };
 
+  const selectedMethodConfig = paymentMethods.find((m) => m.id === selectedMethod);
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">النقاط</h2>
-        <p className="text-gray-500 mt-1">إدارة النقاط والشراء</p>
+        <p className="text-gray-500 mt-1">شراء نقاط عن طريق التحويل البنكي</p>
       </div>
 
+      {/* Points balance card */}
       <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
         <CardContent className="p-6 text-center">
           <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
@@ -1751,44 +1816,230 @@ function DriverPoints() {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-emerald-600" />
-            شراء نقاط
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            {[5, 10, 25, 50].map((amount) => (
-              <Button
-                key={amount}
-                variant={purchaseAmount === String(amount) ? 'default' : 'outline'}
-                className={purchaseAmount === String(amount) ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
-                onClick={() => setPurchaseAmount(String(amount))}
-              >
-                {amount} نقطة
-              </Button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder="عدد نقاط مخصص"
-              value={purchaseAmount}
-              onChange={(e) => setPurchaseAmount(e.target.value)}
-            />
-            <Button
-              className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
-              onClick={handlePurchase}
-              disabled={purchasing || !purchaseAmount}
-            >
-              {purchasing ? '⏳' : 'شراء'}
-            </Button>
+      {/* How it works */}
+      <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-50">
+        <CardContent className="p-4">
+          <h3 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+            <CreditCard className="w-4 h-4" />
+            إزاي تشتري نقاط؟
+          </h3>
+          <ol className="text-sm text-amber-800 space-y-1.5 list-decimal list-inside">
+            <li>اختار طريقة الدفع (فودافون كاش / إنستاباي / أورنج كاش)</li>
+            <li>حوّل المبلغ على رقم الأدمن اللي مكتوب</li>
+            <li>اكتب بيانات التحويل (اسمك ورقم التليفون ورقم الإيصال)</li>
+            <li>استنى الأدمن يعتمد الطلب والنقاط هتتنزل تلقائي</li>
+          </ol>
+          <div className="mt-3 p-2 bg-amber-100 rounded-lg text-xs text-amber-700 text-center">
+            سعر النقطة: {pointPrice} ج.م | مثال: 10 نقاط = {10 * pointPrice} ج.م
           </div>
         </CardContent>
       </Card>
 
+      {/* Payment methods */}
+      <div>
+        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <Wallet className="w-4 h-4" />
+          طرق الدفع المتاحة
+        </h3>
+        <div className="space-y-3">
+          {paymentMethods.map((method) => (
+            <Card key={method.id} className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-2xl shadow-sm`}>
+                      {method.icon}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">{method.name}</p>
+                      <p className="text-sm text-gray-500">تحويل إلى: {method.accountName}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-400">رقم الحساب</p>
+                    <p className="font-bold text-gray-900 text-lg tracking-wider" dir="ltr">{method.accountPhone}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => handleCopyPhone(method.accountPhone, method.id)}
+                  >
+                    {copied === method.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied === method.id ? 'تم!' : 'نسخ'}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">{method.instructions}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Buy points button / form */}
+      {!showPaymentForm ? (
+        <Button
+          className="w-full bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 gap-2 py-6 text-lg"
+          onClick={() => setShowPaymentForm(true)}
+        >
+          <ShoppingCart className="w-5 h-5" /> اشتري نقاط دلوقتي
+        </Button>
+      ) : (
+        <Card className="border-0 shadow-md border-t-4 border-t-emerald-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-emerald-600" />
+                طلب شراء نقاط
+              </CardTitle>
+              <Button variant="ghost" size="icon" onClick={() => setShowPaymentForm(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmitPayment} className="space-y-4">
+              {/* Points amount */}
+              <div className="space-y-2">
+                <Label>عدد النقاط</Label>
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {[5, 10, 25, 50].map((amount) => (
+                    <Button
+                      key={amount}
+                      type="button"
+                      variant={purchaseAmount === String(amount) ? 'default' : 'outline'}
+                      className={purchaseAmount === String(amount) ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                      onClick={() => setPurchaseAmount(String(amount))}
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                </div>
+                <Input
+                  type="number"
+                  placeholder="أو اكتب عدد مخصص"
+                  value={purchaseAmount}
+                  onChange={(e) => setPurchaseAmount(e.target.value)}
+                />
+                {purchaseAmount && (
+                  <p className="text-sm text-emerald-600 font-medium">
+                    المطلوب تحويله: {parseInt(purchaseAmount) * pointPrice} ج.م
+                  </p>
+                )}
+              </div>
+
+              {/* Payment method */}
+              <div className="space-y-2">
+                <Label>طريقة الدفع</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {paymentMethods.map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => setSelectedMethod(method.id)}
+                      className={`p-3 rounded-xl border-2 text-center transition-all ${
+                        selectedMethod === method.id
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <span className="text-2xl block mb-1">{method.icon}</span>
+                      <span className="text-xs font-medium">{method.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Show selected method info */}
+              {selectedMethodConfig && (
+                <div className="p-3 bg-emerald-50 rounded-lg text-sm">
+                  <p className="font-medium text-emerald-800">حوّل على الرقم ده:</p>
+                  <p className="text-lg font-bold text-emerald-900 mt-1 tracking-wider" dir="ltr">{selectedMethodConfig.accountPhone}</p>
+                  <p className="text-xs text-emerald-600 mt-1">باسم: {selectedMethodConfig.accountName}</p>
+                </div>
+              )}
+
+              {/* Sender info */}
+              <div className="space-y-2">
+                <Label>اسم المرسل (الاسم اللي على الحساب)</Label>
+                <Input
+                  placeholder="الاسم اللي حوّلت منه"
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>رقم تليفون المرسل</Label>
+                <Input
+                  type="tel"
+                  placeholder="رقم التليفون اللي حوّلت منه"
+                  value={senderPhone}
+                  onChange={(e) => setSenderPhone(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>رقم الإيصال / المرجع (اختياري)</Label>
+                <Input
+                  placeholder="رقم الإيصال من التطبيق"
+                  value={receiptNumber}
+                  onChange={(e) => setReceiptNumber(e.target.value)}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                disabled={submitting || !purchaseAmount || !selectedMethod}
+              >
+                {submitting ? '⏳ جاري الإرسال...' : 'إرسال طلب الدفع'}
+              </Button>
+              <p className="text-xs text-gray-400 text-center">بعد الإرسال هيتم مراجعة طلبك والنقاط هتتنزل بعد ما الأدمن يعتمد</p>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* My payment requests */}
+      {myPayments.length > 0 && (
+        <Card className="border-0 shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-500" />
+              طلبات الدفع بتاعتي
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="max-h-64">
+              <div className="space-y-2">
+                {myPayments.map((payment) => (
+                  <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm">{payment.amount} نقطة</span>
+                        <span className="text-xs text-gray-400">•</span>
+                        <span className="text-xs text-gray-500">{paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod}</span>
+                      </div>
+                      <p className="text-xs text-gray-400">{new Date(payment.createdAt).toLocaleDateString('ar-EG')}</p>
+                      {payment.adminNote && (
+                        <p className="text-xs text-amber-600 mt-1">ملاحظة: {payment.adminNote}</p>
+                      )}
+                    </div>
+                    <Badge className={paymentStatusColors[payment.status]}>
+                      {paymentStatusLabels[payment.status]}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Points transaction history */}
       <Card className="border-0 shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">سجل النقاط</CardTitle>
@@ -1825,6 +2076,200 @@ function DriverPoints() {
   );
 }
 
+// ============== ADMIN PAYMENTS ==============
+function AdminPayments() {
+  const { toast } = useToast();
+  const [payments, setPayments] = useState<PaymentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('PENDING');
+  const [adminNote, setAdminNote] = useState<Record<string, string>>({});
+
+  const loadPayments = useCallback(async () => {
+    const url = filter !== 'ALL' ? `/api/payments?status=${filter}&role=ADMIN` : '/api/payments?role=ADMIN';
+    const data = await api.get(url);
+    if (data.payments) setPayments(data.payments);
+    setLoading(false);
+  }, [filter]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPayments();
+  }, [loadPayments]);
+
+  const handleAction = async (paymentId: string, action: 'APPROVED' | 'REJECTED') => {
+    const note = adminNote[paymentId] || '';
+    const data = await api.patch(`/api/payments/${paymentId}`, {
+      status: action,
+      adminNote: note,
+      adminRole: 'ADMIN',
+    });
+    if (data.error) {
+      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+    } else {
+      toast({
+        title: 'تم!',
+        description: action === 'APPROVED' ? 'تم قبول الدفع وإضافة النقاط' : 'تم رفض طلب الدفع',
+      });
+      loadPayments();
+    }
+  };
+
+  const paymentMethodLabels: Record<string, string> = {
+    VODAFONE_CASH: '📱 فودافون كاش',
+    INSTAPAY: '💳 إنستاباي',
+    ORANGE_CASH: '🍊 أورنج كاش',
+  };
+
+  const paymentStatusLabels: Record<string, string> = {
+    PENDING: 'في الانتظار',
+    APPROVED: 'تم القبول',
+    REJECTED: 'مرفوض',
+  };
+  const paymentStatusColors: Record<string, string> = {
+    PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    APPROVED: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    REJECTED: 'bg-red-100 text-red-800 border-red-300',
+  };
+
+  const pendingCount = payments.filter((p) => p.status === 'PENDING').length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">طلبات الدفع</h2>
+          <p className="text-gray-500 mt-1">إدارة طلبات شراء النقاط</p>
+        </div>
+        <Tabs value={filter} onValueChange={setFilter}>
+          <TabsList>
+            <TabsTrigger value="PENDING" className="relative">
+              في الانتظار
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -left-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {pendingCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="APPROVED">مقبولة</TabsTrigger>
+            <TabsTrigger value="REJECTED">مرفوضة</TabsTrigger>
+            <TabsTrigger value="ALL">الكل</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      ) : payments.length === 0 ? (
+        <Card className="border-0 shadow-md">
+          <CardContent className="py-12 text-center">
+            <Wallet className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-400">مفيش طلبات دفع {filter === 'PENDING' ? 'في الانتظار' : ''}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {payments.map((payment) => (
+            <Card key={payment.id} className={`border-0 shadow-sm hover:shadow-md transition-shadow ${
+              payment.status === 'PENDING' ? 'ring-2 ring-yellow-200' : ''
+            }`}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Coins className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">{payment.user?.name}</p>
+                      <p className="text-xs text-gray-500">{payment.user?.phone}</p>
+                    </div>
+                  </div>
+                  <Badge className={paymentStatusColors[payment.status]}>
+                    {paymentStatusLabels[payment.status]}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div>
+                    <p className="text-xs text-gray-400">عدد النقاط</p>
+                    <p className="font-bold text-emerald-600 text-lg">{payment.amount} نقطة</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">طريقة الدفع</p>
+                    <p className="font-medium">{paymentMethodLabels[payment.paymentMethod]}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">اسم المرسل</p>
+                    <p className="font-medium">{payment.senderName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">رقم المرسل</p>
+                    <p className="font-medium" dir="ltr">{payment.senderPhone}</p>
+                  </div>
+                  {payment.receiptNumber && (
+                    <div className="col-span-2">
+                      <p className="text-xs text-gray-400">رقم الإيصال / المرجع</p>
+                      <p className="font-bold text-blue-600 tracking-wider" dir="ltr">{payment.receiptNumber}</p>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-xs text-gray-400">
+                  تاريخ الطلب: {new Date(payment.createdAt).toLocaleDateString('ar-EG')} - {new Date(payment.createdAt).toLocaleTimeString('ar-EG')}
+                </p>
+
+                {payment.status === 'PENDING' && (
+                  <div className="pt-3 border-t space-y-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">ملاحظة (اختياري)</Label>
+                      <Input
+                        placeholder="مثال: تم التحويل بنجاح / الإيصال مش واضح"
+                        value={adminNote[payment.id] || ''}
+                        onChange={(e) => setAdminNote((prev) => ({ ...prev, [payment.id]: e.target.value }))}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 gap-1"
+                        onClick={() => handleAction(payment.id, 'APPROVED')}
+                      >
+                        <CheckCircle className="w-4 h-4" /> قبول وإضافة النقاط
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1 text-red-600 border-red-200 hover:bg-red-50 gap-1"
+                        onClick={() => handleAction(payment.id, 'REJECTED')}
+                      >
+                        <XCircle className="w-4 h-4" /> رفض
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {payment.adminNote && payment.status !== 'PENDING' && (
+                  <div className="p-2 bg-gray-50 rounded-lg">
+                    <p className="text-xs text-gray-400">ملاحظة الأدمن:</p>
+                    <p className="text-sm text-gray-600">{payment.adminNote}</p>
+                  </div>
+                )}
+
+                {payment.reviewedAt && (
+                  <p className="text-xs text-gray-400">
+                    تاريخ المراجعة: {new Date(payment.reviewedAt).toLocaleDateString('ar-EG')}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ============== MAIN APP ==============
 function AppContent() {
   const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
@@ -1847,6 +2292,7 @@ function AppContent() {
       case 'admin-shops': return <AdminShops />;
       case 'admin-users': return <AdminUsers />;
       case 'admin-orders': return <AdminOrders />;
+      case 'admin-payments': return <AdminPayments />;
       // Shop views
       case 'shop-dashboard': return <ShopDashboard />;
       case 'shop-create-order': return <ShopCreateOrder />;
