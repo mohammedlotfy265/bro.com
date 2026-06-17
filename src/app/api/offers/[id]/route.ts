@@ -54,20 +54,25 @@ export async function PATCH(
         data: { status: 'REJECTED' },
       });
 
-      // Give the driver back a point as earning for getting the job
-      await db.user.update({
-        where: { id: offer.driverId },
-        data: { points: { increment: 2 } }, // earn 2 points for accepting
-      });
+      // Deduct 10% of driver's current points as commission
+      const driver = await db.user.findUnique({ where: { id: offer.driverId } });
+      if (driver && driver.points > 0) {
+        const commissionPoints = Math.max(1, Math.ceil(driver.points * 0.10)); // 10%, minimum 1
 
-      await db.pointsTransaction.create({
-        data: {
-          userId: offer.driverId,
-          amount: 2,
-          type: 'EARNING',
-          description: `قبول توصيل طلب #${offer.orderId.slice(-6)}`,
-        },
-      });
+        await db.user.update({
+          where: { id: offer.driverId },
+          data: { points: { decrement: commissionPoints } },
+        });
+
+        await db.pointsTransaction.create({
+          data: {
+            userId: offer.driverId,
+            amount: -commissionPoints,
+            type: 'USAGE',
+            description: `عمولة 10% على قبول توصيل طلب #${offer.orderId.slice(-6)} (${commissionPoints} نقطة من ${driver.points})`,
+          },
+        });
+      }
     }
 
     return NextResponse.json({ offer: updatedOffer });
