@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     const commissionPoints = Math.max(1, Math.ceil(price * 0.10)); // 10% of offer price, minimum 1
     if (driver.points < commissionPoints) {
-      return NextResponse.json({ error: `معندكش نقاط كافية. عمولة العرض = ${commissionPoints} نقطة (10% من ${price} ج.م). عندك ${driver.points} نقطة بس. اشتري نقاط الأول` }, { status: 400 });
+      return NextResponse.json({ error: `معندكش نقاط كافية. عمولة العرض = ${commissionPoints} نقطة. عندك ${driver.points} نقطة بس. اشتري نقاط الأول` }, { status: 400 });
     }
 
     // Check if driver already offered on this order

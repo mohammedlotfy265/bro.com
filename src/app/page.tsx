@@ -1915,7 +1915,7 @@ function DriverPoints() {
           <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
           <p className="text-4xl font-bold">{currentPoints}</p>
           <p className="text-lg opacity-80">نقطة</p>
-          <p className="text-sm opacity-60 mt-2">عمولة 10% من سعر عرضك بتتخصم لما المحل يقبل</p>
+          <p className="text-sm opacity-60 mt-2">خصم عمولة لما المحل يقبل عرضك</p>
         </CardContent>
       </Card>
 
