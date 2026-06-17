@@ -54,10 +54,10 @@ export async function PATCH(
         data: { status: 'REJECTED' },
       });
 
-      // Deduct 10% of driver's points as commission
+      // Deduct 10% of offer price as commission (in points)
       const driver = await db.user.findUnique({ where: { id: offer.driverId } });
       if (driver && driver.points > 0) {
-        const commissionPoints = Math.max(1, Math.ceil(driver.points * 0.10));
+        const commissionPoints = Math.max(1, Math.ceil(offer.price * 0.10)); // 10% of offer price
         const actualDeduction = Math.min(commissionPoints, driver.points);
 
         await db.user.update({
@@ -70,7 +70,7 @@ export async function PATCH(
             userId: offer.driverId,
             amount: -actualDeduction,
             type: 'USAGE',
-            description: `عمولة 10% على قبول توصيل طلب #${offer.orderId.slice(-6)} (${actualDeduction} نقطة من ${driver.points})`,
+            description: `عمولة 10% على قبول توصيل طلب #${offer.orderId.slice(-6)} (${actualDeduction} نقطة = 10% من ${offer.price} ج.م)`,
           },
         });
       }

@@ -45,15 +45,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'كل البيانات مطلوبة' }, { status: 400 });
     }
 
-    // Check if driver has enough points for 10% commission
+    // Check if driver has enough points for 10% commission of the offer price
     const driver = await db.user.findUnique({ where: { id: driverId } });
     if (!driver) {
       return NextResponse.json({ error: 'الدليفري مش موجود' }, { status: 404 });
     }
 
-    const commissionPoints = Math.max(1, Math.ceil(driver.points * 0.10)); // minimum 1
+    const commissionPoints = Math.max(1, Math.ceil(price * 0.10)); // 10% of offer price, minimum 1
     if (driver.points < commissionPoints) {
-      return NextResponse.json({ error: `معندكش نقاط كافية. لازم يكون عندك على الأقل ${commissionPoints} نقطة (عمولة 10%). اشتري نقاط الأول` }, { status: 400 });
+      return NextResponse.json({ error: `معندكش نقاط كافية. عمولة العرض = ${commissionPoints} نقطة (10% من ${price} ج.م). عندك ${driver.points} نقطة بس. اشتري نقاط الأول` }, { status: 400 });
     }
 
     // Check if driver already offered on this order
