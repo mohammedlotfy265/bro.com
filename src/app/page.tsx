@@ -1520,8 +1520,9 @@ function DriverAvailableOrders() {
       toast({ title: 'خطأ', description: 'لازم تحط سعر للعرض', variant: 'destructive' });
       return;
     }
-    if (user.points < 1) {
-      toast({ title: 'نقاط مش كافية', description: 'اشتري نقاط الأول عشان تقدر تعمل عرض', variant: 'destructive' });
+    const pointsCost = Math.max(1, Math.ceil(user.points * 0.10));
+    if (user.points < pointsCost) {
+      toast({ title: 'نقاط مش كافية', description: `محتاج على الأقل ${pointsCost} نقطة (10% من نقاطك) عشان تعمل عرض`, variant: 'destructive' });
       return;
     }
 
@@ -1603,17 +1604,17 @@ function DriverAvailableOrders() {
                   </div>
                   <Button
                     className="bg-emerald-600 hover:bg-emerald-700 gap-1 h-9"
-                    disabled={submitting[order.id] || user?.points < 1}
+                    disabled={submitting[order.id] || user?.points < Math.max(1, Math.ceil((user?.points || 0) * 0.10))}
                     onClick={() => handleOffer(order.id)}
                   >
                     {submitting[order.id] ? (
                       <span className="animate-spin">⏳</span>
                     ) : (
-                      <><Send className="w-3.5 h-3.5" /> عرض</>
+                      <><Send className="w-3.5 h-3.5" /> عرض ({Math.max(1, Math.ceil((user?.points || 0) * 0.10))} نقطة)</>
                     )}
                   </Button>
                 </div>
-                {user?.points < 1 && (
+                {user?.points < Math.max(1, Math.ceil((user?.points || 0) * 0.10)) && (
                   <p className="text-xs text-red-500 text-center">معندكش نقاط كافية. اشتري نقاط الأول!</p>
                 )}
               </CardContent>
@@ -1915,7 +1916,7 @@ function DriverPoints() {
           <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
           <p className="text-4xl font-bold">{currentPoints}</p>
           <p className="text-lg opacity-80">نقطة</p>
-          <p className="text-sm opacity-60 mt-2">كل عرض على طلب بيخصم نقطة واحدة</p>
+          <p className="text-sm opacity-60 mt-2">كل عرض على طلب بيخصم 10% من نقاطك</p>
         </CardContent>
       </Card>
 
