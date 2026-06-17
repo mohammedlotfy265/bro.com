@@ -94,7 +94,11 @@ function LoginView() {
     try {
       const data = await api.post('/api/auth', { phone, password });
       if (data.error) {
-        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+        if (data.notApproved) {
+          toast({ title: 'حسابك لسه في الانتظار ⏳', description: data.error, variant: 'destructive' });
+        } else {
+          toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+        }
       } else {
         setUser(data.user);
         const role = data.user.role;
@@ -133,7 +137,11 @@ function LoginView() {
         await api.post('/api/seed', {});
         const retryData = await api.post('/api/auth', { phone: quickPhone, password: quickPassword });
         if (retryData.error) {
-          toast({ title: 'خطأ', description: retryData.error, variant: 'destructive' });
+          if (retryData.notApproved) {
+            toast({ title: 'حسابك لسه في الانتظار ⏳', description: retryData.error, variant: 'destructive' });
+          } else {
+            toast({ title: 'خطأ', description: retryData.error, variant: 'destructive' });
+          }
         } else {
           setUser(retryData.user);
           const role = retryData.user.role;
@@ -295,7 +303,7 @@ function RegisterView() {
       if (data.error) {
         toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
       } else {
-        toast({ title: 'تم التسجيل!', description: 'قدرك تسجل دخول دلوقتي' });
+        toast({ title: 'تم التسجيل!', description: data.message || 'حسابك في انتظار موافقة الأدمن. هتقدر تدخل لما يتم اعتمادك.' });
         setCurrentView('login');
       }
     } catch {
@@ -379,6 +387,7 @@ function AdminSidebar() {
     { id: 'admin-users', label: 'المستخدمين', icon: Users },
     { id: 'admin-orders', label: 'الطلبات', icon: ClipboardList },
     { id: 'admin-payments', label: 'طلبات الدفع', icon: Wallet },
+    { id: 'admin-approvals', label: 'طلبات التسجيل', icon: UserPlus },
   ];
 
   return (
@@ -2337,6 +2346,133 @@ function AdminPayments() {
   );
 }
 
+// ============== ADMIN APPROVALS ==============
+function AdminApprovals() {
+  const { toast } = useToast();
+  const [pendingUsers, setPendingUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadPending = useCallback(async () => {
+    const data = await api.get('/api/users?approved=false');
+    if (data.users) setPendingUsers(data.users);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPending();
+  }, [loadPending]);
+
+  const handleApprove = async (userId: string) => {
+    const data = await api.patch('/api/users', { userId, approved: true, adminRole: 'ADMIN' });
+    if (data.error) {
+      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'تم!', description: 'تم قبول الحساب. المستخدم يقدر يدخل دلوقتي' });
+      loadPending();
+    }
+  };
+
+  const handleReject = async (userId: string) => {
+    // Deactivate (soft reject) instead of deleting
+    const data = await api.patch('/api/users', { userId, active: false, approved: false, adminRole: 'ADMIN' });
+    if (data.error) {
+      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'تم الرفض', description: 'تم رفض طلب التسجيل' });
+      loadPending();
+    }
+  };
+
+  const roleLabels: Record<string, string> = { SHOP: 'شوب (صاحب محل)', DRIVER: 'دليفري' };
+  const roleIcons: Record<string, string> = { SHOP: '🏪', DRIVER: '🚚' };
+  const roleColors: Record<string, string> = {
+    SHOP: 'bg-blue-100 text-blue-700',
+    DRIVER: 'bg-emerald-100 text-emerald-700',
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">طلبات التسجيل</h2>
+        <p className="text-gray-500 mt-1">المستخدمين اللي عايزين ينضموا للنظام</p>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      ) : pendingUsers.length === 0 ? (
+        <Card className="border-0 shadow-md">
+          <CardContent className="py-12 text-center">
+            <UserPlus className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-400">مفيش طلبات تسجيل جديدة</p>
+            <p className="text-sm text-gray-300 mt-1">لما حد يسجل جديد، هتظهر طلبو هنا</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {pendingUsers.filter((u) => u.active).map((user) => (
+            <Card key={user.id} className="border-0 shadow-sm ring-2 ring-yellow-200 hover:shadow-md transition-shadow">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center text-2xl">
+                      {roleIcons[user.role] || '👤'}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">{user.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Badge className={roleColors[user.role]}>
+                          {roleLabels[user.role] || user.role}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">في الانتظار</Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div>
+                    <p className="text-xs text-gray-400">رقم التليفون</p>
+                    <p className="font-medium" dir="ltr">{user.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">النقاط</p>
+                    <p className="font-medium">{user.points}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-gray-400">تاريخ التسجيل</p>
+                    <p className="font-medium">{new Date(user.createdAt).toLocaleDateString('ar-EG')} - {new Date(user.createdAt).toLocaleTimeString('ar-EG')}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 gap-1"
+                    onClick={() => handleApprove(user.id)}
+                  >
+                    <CheckCircle className="w-4 h-4" /> قبول التسجيل
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-red-600 border-red-200 hover:bg-red-50 gap-1"
+                    onClick={() => handleReject(user.id)}
+                  >
+                    <XCircle className="w-4 h-4" /> رفض
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ============== MAIN APP ==============
 function AppContent() {
   const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
@@ -2360,6 +2496,7 @@ function AppContent() {
       case 'admin-users': return <AdminUsers />;
       case 'admin-orders': return <AdminOrders />;
       case 'admin-payments': return <AdminPayments />;
+      case 'admin-approvals': return <AdminApprovals />;
       // Shop views
       case 'shop-dashboard': return <ShopDashboard />;
       case 'shop-create-order': return <ShopCreateOrder />;

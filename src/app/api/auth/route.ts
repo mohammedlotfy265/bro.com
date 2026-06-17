@@ -21,6 +21,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'الحساب ده متعطل' }, { status: 403 });
     }
 
+    if (!user.approved) {
+      return NextResponse.json({
+        error: 'حسابك لسه في انتظار الموافقة. استنى الأدمن يعتمد حسابك.',
+        notApproved: true,
+      }, { status: 403 });
+    }
+
     const { password: _, ...userWithoutPassword } = user;
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {

@@ -10,7 +10,7 @@ export async function POST() {
       return NextResponse.json({ message: 'الأدمن موجود بالفعل', admin: { phone: existingAdmin.phone } });
     }
 
-    // Create admin user
+    // Create admin user (auto-approved)
     const admin = await db.user.create({
       data: {
         name: 'المدير',
@@ -18,10 +18,11 @@ export async function POST() {
         password: 'admin123',
         role: 'ADMIN',
         points: 999,
+        approved: true,
       },
     });
 
-    // Create sample shop user
+    // Create sample shop user (auto-approved)
     const shopUser = await db.user.create({
       data: {
         name: 'صيدلية النور',
@@ -29,6 +30,7 @@ export async function POST() {
         password: 'shop123',
         role: 'SHOP',
         points: 0,
+        approved: true,
       },
     });
 
@@ -43,7 +45,7 @@ export async function POST() {
       },
     });
 
-    // Create sample driver
+    // Create sample driver (auto-approved)
     await db.user.create({
       data: {
         name: 'أحمد الدليفري',
@@ -51,6 +53,7 @@ export async function POST() {
         password: 'driver123',
         role: 'DRIVER',
         points: 10,
+        approved: true,
       },
     });
 

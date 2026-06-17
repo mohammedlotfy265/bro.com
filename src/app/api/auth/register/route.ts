@@ -21,11 +21,14 @@ export async function POST(request: Request) {
     }
 
     const user = await db.user.create({
-      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0 },
+      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0, approved: false },
     });
 
     const { password: _, ...userWithoutPassword } = user;
-    return NextResponse.json({ user: userWithoutPassword }, { status: 201 });
+    return NextResponse.json({
+      user: userWithoutPassword,
+      message: 'تم التسجيل بنجاح! حسابك في انتظار موافقة الأدمن. هتقدر تدخل لما الأدمن يعتمد حسابك.',
+    }, { status: 201 });
   } catch (error) {
     console.error('Register error:', error);
     return NextResponse.json({ error: 'حصل خطأ في التسجيل' }, { status: 500 });

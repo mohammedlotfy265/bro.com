@@ -7,6 +7,7 @@ export interface User {
   role: 'ADMIN' | 'SHOP' | 'DRIVER';
   points: number;
   active: boolean;
+  approved: boolean;
 }
 
 export interface Shop {
@@ -91,6 +92,7 @@ type ViewType =
   | 'admin-users'
   | 'admin-orders'
   | 'admin-payments'
+  | 'admin-approvals'
   | 'shop-dashboard'
   | 'shop-create-order'
   | 'shop-orders'

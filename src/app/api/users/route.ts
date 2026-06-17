@@ -6,9 +6,13 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
+    const approved = searchParams.get('approved');
 
     const where: Record<string, unknown> = {};
     if (role) where.role = role;
+    if (approved !== null && approved !== undefined) {
+      where.approved = approved === 'true';
+    }
 
     const users = await db.user.findMany({
       where,
@@ -19,6 +23,7 @@ export async function GET(request: Request) {
         role: true,
         points: true,
         active: true,
+        approved: true,
         createdAt: true,
         shops: { select: { id: true, name: true, type: true } },
       },
@@ -55,8 +60,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'رقم التليفون ده مسجل قبل كده' }, { status: 409 });
     }
 
+    // Admin-created users are auto-approved
     const user = await db.user.create({
-      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0 },
+      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0, approved: true },
     });
 
     const { password: _, ...userWithoutPassword } = user;
@@ -67,25 +73,29 @@ export async function POST(request: Request) {
   }
 }
 
-// PATCH /api/users - toggle user active status
+// PATCH /api/users - approve/reject/toggle active
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { userId, active, adminRole } = body;
+    const { userId, active, approved, adminRole } = body;
 
     if (adminRole !== 'ADMIN') {
       return NextResponse.json({ error: 'مسموح للأدمن بس' }, { status: 403 });
     }
 
+    const updateData: Record<string, unknown> = {};
+    if (active !== undefined) updateData.active = active;
+    if (approved !== undefined) updateData.approved = approved;
+
     const user = await db.user.update({
       where: { id: userId },
-      data: { active },
-      select: { id: true, name: true, active: true },
+      data: updateData,
+      select: { id: true, name: true, active: true, approved: true },
     });
 
     return NextResponse.json({ user });
   } catch (error) {
-    console.error('Toggle user error:', error);
+    console.error('Update user error:', error);
     return NextResponse.json({ error: 'حصل خطأ' }, { status: 500 });
   }
 }
