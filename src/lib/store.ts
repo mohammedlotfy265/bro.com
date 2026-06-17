@@ -93,6 +93,7 @@ type ViewType =
   | 'admin-orders'
   | 'admin-payments'
   | 'admin-approvals'
+  | 'admin-earnings'
   | 'shop-dashboard'
   | 'shop-create-order'
   | 'shop-orders'

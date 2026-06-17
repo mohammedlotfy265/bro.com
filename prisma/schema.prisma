@@ -40,6 +40,7 @@ model Shop {
   updatedAt DateTime @updatedAt
 
   orders Order[]
+  earnings Earning[]
 }
 
 model Order {
@@ -51,6 +52,7 @@ model Order {
   deliveryAddress String
   status          String   @default("PENDING") // PENDING, OFFERED, ACCEPTED, PICKED_UP, DELIVERED, CANCELLED
   deliveryFee     Float    @default(0)
+  commission      Float    @default(0) // 10% commission for admin
   pointsCost      Int      @default(1)
   createdById     String
   createdBy       User     @relation("OrderCreator", fields: [createdById], references: [id])
@@ -60,6 +62,19 @@ model Order {
   updatedAt       DateTime @updatedAt
 
   offers DeliveryOffer[]
+  earning Earning?
+}
+
+model Earning {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  deliveryFee Float    // total delivery fee
+  commission  Float    // 10% commission amount
+  driverEarning Float  // 90% that driver gets
+  createdAt   DateTime @default(now())
 }
 
 model DeliveryOffer {

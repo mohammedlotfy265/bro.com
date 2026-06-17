@@ -388,6 +388,7 @@ function AdminSidebar() {
     { id: 'admin-orders', label: 'الطلبات', icon: ClipboardList },
     { id: 'admin-payments', label: 'طلبات الدفع', icon: Wallet },
     { id: 'admin-approvals', label: 'طلبات التسجيل', icon: UserPlus },
+    { id: 'admin-earnings', label: 'الأرباح', icon: DollarSign },
   ];
 
   return (
@@ -1160,6 +1161,19 @@ function ShopCreateOrder() {
                   className="pr-10"
                 />
               </div>
+              {deliveryFee && parseFloat(deliveryFee) > 0 && (
+                <div className="p-2.5 bg-amber-50 rounded-lg text-xs space-y-1">
+                  <p className="font-medium text-amber-800">توزيع الرسوم:</p>
+                  <div className="flex justify-between text-amber-700">
+                    <span>عمولة المنصة (10%)</span>
+                    <span className="font-bold">{(parseFloat(deliveryFee) * 0.10).toFixed(2)} ج.م</span>
+                  </div>
+                  <div className="flex justify-between text-blue-700">
+                    <span>أرباح الدليفري (90%)</span>
+                    <span className="font-bold">{(parseFloat(deliveryFee) * 0.90).toFixed(2)} ج.م</span>
+                  </div>
+                </div>
+              )}
             </div>
             <Button
               type="submit"
@@ -1308,6 +1322,19 @@ function ShopOrders() {
                 {order.acceptedDriver && ['ACCEPTED', 'PICKED_UP'].includes(order.status) && (
                   <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600">
                     <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name} - {order.acceptedDriver.phone}
+                  </div>
+                )}
+                {order.status === 'DELIVERED' && order.commission > 0 && (
+                  <div className="mt-2 p-2 bg-emerald-50 rounded-lg text-xs space-y-1">
+                    <p className="font-medium text-emerald-800">تم التوصيل - توزيع الرسوم:</p>
+                    <div className="flex justify-between text-amber-700">
+                      <span>عمولة المنصة (10%)</span>
+                      <span className="font-bold">{order.commission?.toFixed(2)} ج.م</span>
+                    </div>
+                    <div className="flex justify-between text-blue-700">
+                      <span>أرباح الدليفري</span>
+                      <span className="font-bold">{((order.deliveryFee || 0) - (order.commission || 0)).toFixed(2)} ج.م</span>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -2473,6 +2500,194 @@ function AdminApprovals() {
   );
 }
 
+// ============== ADMIN EARNINGS ==============
+function AdminEarnings() {
+  const [data, setData] = useState<{
+    totalCommission: number;
+    totalDeliveryFees: number;
+    totalDriverEarnings: number;
+    totalDeliveries: number;
+    todayCommission: number;
+    todayDeliveries: number;
+    monthCommission: number;
+    monthDeliveries: number;
+    commissionRate: number;
+    recentEarnings: Array<{
+      id: string;
+      deliveryFee: number;
+      commission: number;
+      driverEarning: number;
+      createdAt: string;
+      order: { description: string };
+      shop: { name: string; type: string };
+    }>;
+    earningsByShop: Array<{
+      shopId: string;
+      _sum: { commission: number; deliveryFee: number };
+      _count: number;
+      shop: { name: string; type: string };
+    }>;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/api/earnings').then((result) => {
+      setData(result);
+      setLoading(false);
+    });
+  }, []);
+
+  const shopTypeIcons: Record<string, string> = {
+    PHARMACY: '💊', SUPERMARKET: '🛒', RESTAURANT: '🍽️', OTHER: '🏪',
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">الأرباح والعمولات</h2>
+        <p className="text-gray-500 mt-1">عمولة {data?.commissionRate || 10}% على كل توصيلة</p>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Main stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+              <CardContent className="p-4 text-center">
+                <DollarSign className="w-7 h-7 mx-auto mb-1 opacity-80" />
+                <p className="text-2xl font-bold">{data?.totalCommission?.toFixed(2) || '0'}</p>
+                <p className="text-xs opacity-80">إجمالي العمولة (ج.م)</p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-4 text-center">
+                <TrendingUp className="w-7 h-7 mx-auto mb-1 text-blue-500" />
+                <p className="text-2xl font-bold text-gray-900">{data?.monthCommission?.toFixed(2) || '0'}</p>
+                <p className="text-xs text-gray-500">عمولة الشهر (ج.م)</p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-4 text-center">
+                <Package className="w-7 h-7 mx-auto mb-1 text-orange-500" />
+                <p className="text-2xl font-bold text-gray-900">{data?.totalDeliveries || 0}</p>
+                <p className="text-xs text-gray-500">توصيلات مكتملة</p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-4 text-center">
+                <Clock className="w-7 h-7 mx-auto mb-1 text-amber-500" />
+                <p className="text-2xl font-bold text-gray-900">{data?.todayCommission?.toFixed(2) || '0'}</p>
+                <p className="text-xs text-gray-500">عمولة النهارده (ج.م)</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* How commission works */}
+          <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-50 to-teal-50">
+            <CardContent className="p-4">
+              <h3 className="font-bold text-emerald-900 mb-2">إزاي العمولة بتشتغل؟</h3>
+              <div className="space-y-2 text-sm text-emerald-800">
+                <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                  <span>رسوم التوصيلة</span>
+                  <span className="font-bold">100%</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-emerald-100 rounded-lg">
+                  <span>عمولتك (الأدمن)</span>
+                  <span className="font-bold text-emerald-700">10%</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-blue-100 rounded-lg">
+                  <span>أرباح الدليفري</span>
+                  <span className="font-bold text-blue-700">90%</span>
+                </div>
+              </div>
+              <p className="text-xs text-emerald-600 mt-2">مثال: توصيلة بـ 30 ج.م → عمولتك 3 ج.م والدليفري ياخد 27 ج.م</p>
+            </CardContent>
+          </Card>
+
+          {/* Earnings by shop */}
+          {data?.earningsByShop && data.earningsByShop.length > 0 && (
+            <Card className="border-0 shadow-md">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-gray-500" />
+                  أرباح المحلات
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {data.earningsByShop.map((item) => (
+                    <div key={item.shopId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{shopTypeIcons[item.shop?.type] || '🏪'}</span>
+                        <div>
+                          <p className="font-medium text-sm">{item.shop?.name}</p>
+                          <p className="text-xs text-gray-400">{item._count} توصيلة</p>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold text-emerald-600">{item._sum.commission?.toFixed(2)} ج.م</p>
+                        <p className="text-xs text-gray-400">إجمالي: {item._sum.deliveryFee?.toFixed(2)} ج.م</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recent earnings */}
+          {data?.recentEarnings && data.recentEarnings.length > 0 && (
+            <Card className="border-0 shadow-md">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-gray-500" />
+                  آخر الأرباح
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="max-h-96">
+                  <div className="space-y-2">
+                    {data.recentEarnings.map((earning) => (
+                      <div key={earning.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium">{earning.order?.description || 'طلب'}</p>
+                          <p className="text-xs text-gray-400">
+                            {earning.shop?.name} - {new Date(earning.createdAt).toLocaleDateString('ar-EG')}
+                          </p>
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-emerald-600">+{earning.commission?.toFixed(2)} ج.م</p>
+                          <p className="text-xs text-gray-400">من {earning.deliveryFee?.toFixed(2)} ج.م</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+
+          {(!data?.recentEarnings || data.recentEarnings.length === 0) && (
+            <Card className="border-0 shadow-md">
+              <CardContent className="py-12 text-center">
+                <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-400">مفيش أرباح لسه</p>
+                <p className="text-sm text-gray-300 mt-1">لما يتم توصيل طلبات، هتظهر الأرباح هنا</p>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ============== MAIN APP ==============
 function AppContent() {
   const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
@@ -2497,6 +2712,7 @@ function AppContent() {
       case 'admin-orders': return <AdminOrders />;
       case 'admin-payments': return <AdminPayments />;
       case 'admin-approvals': return <AdminApprovals />;
+      case 'admin-earnings': return <AdminEarnings />;
       // Shop views
       case 'shop-dashboard': return <ShopDashboard />;
       case 'shop-create-order': return <ShopCreateOrder />;
