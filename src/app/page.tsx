@@ -1499,6 +1499,7 @@ function DriverAvailableOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [offerPrice, setOfferPrice] = useState<Record<string, string>>({});
+  const [showCounterOffer, setShowCounterOffer] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
   const loadOrders = useCallback(async () => {
@@ -1513,15 +1514,58 @@ function DriverAvailableOrders() {
     loadOrders();
   }, [loadOrders]);
 
-  const handleOffer = async (orderId: string) => {
+  // Driver accepts the shop's price directly (NO offer created, order assigned immediately)
+  const handleDirectAccept = async (orderId: string, shopPrice: number) => {
+    if (!user) return;
+    const commissionPoints = Math.max(1, Math.ceil(shopPrice * 0.10));
+    if (user.points < commissionPoints) {
+      toast({
+        title: 'نقاط مش كافية',
+        description: `عمولة القبول = ${commissionPoints} نقطة. عندك ${user.points} نقطة بس. اشتري نقاط الأول`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSubmitting((prev) => ({ ...prev, [orderId]: true }));
+    try {
+      const data = await api.patch(`/api/orders/${orderId}`, {
+        action: 'directAccept',
+        acceptedDriverId: user.id,
+      });
+      if (data.error) {
+        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+      } else {
+        toast({
+          title: 'تم القبول! 🎉',
+          description: `اتقبل الطلب على سعر المحل (${shopPrice} ج.م). اتخصم منك ${data.deductedPoints} نقطة عمولة.`,
+        });
+        loadOrders();
+        // Update user points in store
+        const updatedUser = { ...user, points: data.remainingPoints };
+        useAppStore.getState().setUser(updatedUser);
+      }
+    } catch {
+      toast({ title: 'خطأ', description: 'حصل خطأ في الاتصال', variant: 'destructive' });
+    }
+    setSubmitting((prev) => ({ ...prev, [orderId]: false }));
+  };
+
+  // Driver makes a counter-offer with a different price (shop needs to approve)
+  const handleCounterOffer = async (orderId: string) => {
     if (!user) return;
     const price = parseFloat(offerPrice[orderId] || '0');
     if (!price || price <= 0) {
       toast({ title: 'خطأ', description: 'لازم تحط سعر للعرض', variant: 'destructive' });
       return;
     }
-    if (user.points < 1) {
-      toast({ title: 'نقاط مش كافية', description: 'اشتري نقاط الأول عشان تقدر تعمل عرض', variant: 'destructive' });
+    const commissionPoints = Math.max(1, Math.ceil(price * 0.10));
+    if (user.points < commissionPoints) {
+      toast({
+        title: 'نقاط مش كافية',
+        description: `عمولة العرض = ${commissionPoints} نقطة. عندك ${user.points} نقطة بس. اشتري نقاط الأول`,
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -1530,12 +1574,10 @@ function DriverAvailableOrders() {
     if (data.error) {
       toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
     } else {
-      toast({ title: 'تم!', description: 'تم تقديم العرض بنجاح. استنيت رد المحل.' });
+      toast({ title: 'تم!', description: `تم تقديم عرضك (${price} ج.م). استنى رد المحل.` });
       setOfferPrice((prev) => ({ ...prev, [orderId]: '' }));
+      setShowCounterOffer((prev) => ({ ...prev, [orderId]: false }));
       loadOrders();
-      // Update user points in store
-      const updatedUser = { ...user, points: user.points - 1 };
-      useAppStore.getState().setUser(updatedUser);
     }
     setSubmitting((prev) => ({ ...prev, [orderId]: false }));
   };
@@ -1545,7 +1587,7 @@ function DriverAvailableOrders() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">الطلبات المتاحة</h2>
-          <p className="text-gray-500 mt-1">اطلب على التوصيلات اللي تعجبك</p>
+          <p className="text-gray-500 mt-1">وافق على سعر المحل أو اعرض سعر تاني</p>
         </div>
         <div className="flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-full">
           <Coins className="w-4 h-4 text-emerald-600" />
@@ -1569,56 +1611,119 @@ function DriverAvailableOrders() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {orders.map((order) => (
-            <Card key={order.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{shopTypeIcons[order.shop?.type] || '🏪'}</span>
-                    <div>
-                      <p className="font-medium">{order.shop?.name}</p>
-                      <p className="text-xs text-gray-500">{shopTypeLabels[order.shop?.type] || 'محل'}</p>
+          {orders.map((order) => {
+            const shopPrice = order.deliveryFee || 0;
+            const commissionPoints = Math.max(1, Math.ceil(shopPrice * 0.10));
+            const canAfford = (user?.points || 0) >= commissionPoints;
+
+            return (
+              <Card key={order.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{shopTypeIcons[order.shop?.type] || '🏪'}</span>
+                      <div>
+                        <p className="font-medium">{order.shop?.name}</p>
+                        <p className="text-xs text-gray-500">{shopTypeLabels[order.shop?.type] || 'محل'}</p>
+                      </div>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs text-gray-400">سعر المحل</p>
+                      <p className="text-lg font-bold text-emerald-600">{shopPrice} ج.م</p>
                     </div>
                   </div>
-                  <span className="text-sm font-bold text-emerald-600">{order.deliveryFee} ج.م</span>
-                </div>
-                <p className="text-sm text-gray-700">{order.description}</p>
-                <div className="space-y-1 text-xs text-gray-400">
-                  <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> من: {order.pickupAddress}</p>
-                  <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</p>
-                </div>
-                {order.offers && order.offers.length > 0 && (
-                  <p className="text-xs text-blue-600">{order.offers.length} عرض تايه</p>
-                )}
-                <div className="flex items-center gap-2 pt-2 border-t">
-                  <div className="relative flex-1">
-                    <span className="absolute right-3 top-2.5 text-xs text-gray-400">ج.م</span>
-                    <Input
-                      type="number"
-                      placeholder="سعرك"
-                      value={offerPrice[order.id] || ''}
-                      onChange={(e) => setOfferPrice((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                      className="pr-10 h-9"
-                    />
+                  <p className="text-sm text-gray-700">{order.description}</p>
+                  <div className="space-y-1 text-xs text-gray-400">
+                    <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> من: {order.pickupAddress}</p>
+                    <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</p>
                   </div>
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 gap-1 h-9"
-                    disabled={submitting[order.id] || user?.points < 1}
-                    onClick={() => handleOffer(order.id)}
-                  >
-                    {submitting[order.id] ? (
-                      <span className="animate-spin">⏳</span>
+                  {order.offers && order.offers.length > 0 && (
+                    <p className="text-xs text-blue-600">{order.offers.length} عرض تايه</p>
+                  )}
+
+                  {/* Price breakdown */}
+                  <div className="p-2.5 bg-amber-50 rounded-lg text-xs space-y-1">
+                    <p className="font-medium text-amber-800">لو وافقت على سعر المحل:</p>
+                    <div className="flex justify-between text-amber-700">
+                      <span>عمولة المنصة (10%)</span>
+                      <span className="font-bold">{commissionPoints} نقطة</span>
+                    </div>
+                    <div className="flex justify-between text-blue-700">
+                      <span>أرباحك (90%)</span>
+                      <span className="font-bold">{(shopPrice * 0.90).toFixed(2)} ج.م</span>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="pt-2 border-t space-y-2">
+                    {/* Direct accept button */}
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 gap-1 h-10"
+                      disabled={submitting[order.id] || !canAfford}
+                      onClick={() => handleDirectAccept(order.id, shopPrice)}
+                    >
+                      {submitting[order.id] ? (
+                        <span className="animate-spin">⏳</span>
+                      ) : (
+                        <><CheckCircle className="w-4 h-4" /> أوافق على سعر المحل ({shopPrice} ج.م)</>
+                      )}
+                    </Button>
+
+                    {/* Counter-offer toggle */}
+                    {!showCounterOffer[order.id] ? (
+                      <Button
+                        variant="outline"
+                        className="w-full gap-1 h-9 border-blue-200 text-blue-700 hover:bg-blue-50"
+                        disabled={submitting[order.id] || !canAfford}
+                        onClick={() => setShowCounterOffer((prev) => ({ ...prev, [order.id]: true }))}
+                      >
+                        <Send className="w-3.5 h-3.5" /> عارض سعر تاني
+                      </Button>
                     ) : (
-                      <><Send className="w-3.5 h-3.5" /> عرض</>
+                      <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                        <div className="relative flex-1">
+                          <span className="absolute right-3 top-2.5 text-xs text-gray-400">ج.م</span>
+                          <Input
+                            type="number"
+                            placeholder="سعرك"
+                            value={offerPrice[order.id] || ''}
+                            onChange={(e) => setOfferPrice((prev) => ({ ...prev, [order.id]: e.target.value }))}
+                            className="pr-10 h-9"
+                            autoFocus
+                          />
+                        </div>
+                        <Button
+                          className="bg-blue-600 hover:bg-blue-700 gap-1 h-9"
+                          disabled={submitting[order.id]}
+                          onClick={() => handleCounterOffer(order.id)}
+                        >
+                          {submitting[order.id] ? <span className="animate-spin">⏳</span> : <><Send className="w-3.5 h-3.5" /> أرسل</>}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 px-2"
+                          disabled={submitting[order.id]}
+                          onClick={() => {
+                            setShowCounterOffer((prev) => ({ ...prev, [order.id]: false }));
+                            setOfferPrice((prev) => ({ ...prev, [order.id]: '' }));
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
                     )}
-                  </Button>
-                </div>
-                {user?.points < 1 && (
-                  <p className="text-xs text-red-500 text-center">معندكش نقاط كافية. اشتري نقاط الأول!</p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+
+                    {!canAfford && (
+                      <p className="text-xs text-red-500 text-center">
+                        معندكش نقاط كافية ({commissionPoints} مطلوبة). اشتري نقاط الأول!
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

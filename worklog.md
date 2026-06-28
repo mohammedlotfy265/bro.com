@@ -46,3 +46,36 @@ Stage Summary:
 - Admin sees pending requests with full sender details and receipt number, can approve/reject
 - Points auto-credited on approval via PointsTransaction
 - Manual payment flow: transfer → submit proof → admin approves → points credited
+
+---
+Task ID: direct-accept-feature
+Agent: main
+Task: Add direct accept feature - driver can accept shop's price without making an offer
+
+Work Log:
+- Updated /api/orders/[id]/route.ts PATCH endpoint to handle action='directAccept':
+  - Validates order is PENDING/OFFERED
+  - Checks driver has enough points (10% commission of shop price)
+  - Sets order.status='ACCEPTED', acceptedDriverId=driver
+  - Rejects all other pending offers for this order
+  - Deducts commission points from driver
+  - Creates points transaction record
+  - Returns deductedPoints and remainingPoints
+- Updated DriverAvailableOrders component in page.tsx:
+  - Added "أوافق على سعر المحل" green button (direct accept)
+  - Added "عارض سعر تاني" blue outline button (toggle counter-offer input)
+  - Added price breakdown showing commission (10%) and earnings (90%)
+  - Shows insufficient points warning when driver can't afford
+- Tested with Agent Browser - full flow works:
+  - Shop creates order with deliveryFee=50
+  - Driver sees order with shop price (50 ج.م)
+  - Driver clicks "أوافق على سعر المحل" → order instantly accepted
+  - 5 points deducted (10% of 50)
+  - Order appears in "توصيلاتي" with status "مقبول"
+
+Stage Summary:
+- Direct accept feature fully functional
+- No offer record created when driver accepts shop price
+- Counter-offer flow still works for drivers who want different price
+- Commission system (10% in points) works correctly
+- Order assignment is immediate on direct accept
