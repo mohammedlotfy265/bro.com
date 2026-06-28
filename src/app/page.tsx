@@ -1641,19 +1641,6 @@ function DriverAvailableOrders() {
                     <p className="text-xs text-blue-600">{order.offers.length} عرض تايه</p>
                   )}
 
-                  {/* Price breakdown */}
-                  <div className="p-2.5 bg-amber-50 rounded-lg text-xs space-y-1">
-                    <p className="font-medium text-amber-800">لو وافقت على سعر المحل:</p>
-                    <div className="flex justify-between text-amber-700">
-                      <span>عمولة المنصة (10%)</span>
-                      <span className="font-bold">{commissionPoints} نقطة</span>
-                    </div>
-                    <div className="flex justify-between text-blue-700">
-                      <span>أرباحك (90%)</span>
-                      <span className="font-bold">{(shopPrice * 0.90).toFixed(2)} ج.م</span>
-                    </div>
-                  </div>
-
                   {/* Action buttons */}
                   <div className="pt-2 border-t space-y-2">
                     {/* Direct accept button */}
