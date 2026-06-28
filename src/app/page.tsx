@@ -44,6 +44,14 @@ const api = {
     });
     return res.json();
   },
+  put: async (url: string, body: unknown) => {
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  },
 };
 
 // ============== STATUS HELPERS ==============
@@ -389,6 +397,7 @@ function AdminSidebar() {
     { id: 'admin-payments', label: 'طلبات الدفع', icon: Wallet },
     { id: 'admin-approvals', label: 'طلبات التسجيل', icon: UserPlus },
     { id: 'admin-earnings', label: 'الأرباح', icon: DollarSign },
+    { id: 'admin-payment-settings', label: 'إعدادات التحويل', icon: CreditCard },
   ];
 
   return (
@@ -2780,6 +2789,159 @@ function AdminEarnings() {
   );
 }
 
+// ============== ADMIN PAYMENT SETTINGS ==============
+function AdminPaymentSettings() {
+  const { toast } = useToast();
+  const [methods, setMethods] = useState<Array<{
+    id: string; name: string; icon: string; color: string;
+    accountName: string; accountPhone: string; instructions: string; active: boolean;
+  }>>([]);
+  const [pointPrice, setPointPrice] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    const data = await api.get('/api/settings/payment-methods');
+    if (data.paymentMethods) setMethods(data.paymentMethods);
+    if (typeof data.pointPrice === 'number') setPointPrice(data.pointPrice);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const data = await api.put('/api/settings/payment-methods', {
+        paymentMethods: methods,
+        pointPrice,
+      });
+      if (data.error) {
+        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'تم الحفظ! ✅', description: 'تم تحديث بيانات التحويل بنجاح' });
+      }
+    } catch {
+      toast({ title: 'خطأ', description: 'حصل خطأ في الاتصال', variant: 'destructive' });
+    }
+    setSaving(false);
+  };
+
+  const updateMethod = (id: string, field: string, value: string | boolean) => {
+    setMethods((prev) => prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">إعدادات التحويل</h2>
+        <p className="text-gray-500 mt-1">عدّل أرقام التحويل اللي بيشتغل عليها المستخدمين</p>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Point price card */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Coins className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-bold">سعر النقطة</h3>
+              </div>
+              <p className="text-xs text-gray-500">السعر اللي بيدفعه المستخدم مقابل كل نقطة (بالجنيه المصري)</p>
+              <div className="relative max-w-xs">
+                <DollarSign className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  value={pointPrice}
+                  onChange={(e) => setPointPrice(parseFloat(e.target.value) || 1)}
+                  className="pr-10"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment methods cards */}
+          {methods.map((method) => (
+            <Card key={method.id} className="border-0 shadow-md">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${method.color} flex items-center justify-center text-xl`}>
+                      {method.icon}
+                    </div>
+                    <div>
+                      <p className="font-bold">{method.name}</p>
+                      <p className="text-xs text-gray-400">{method.id}</p>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={method.active}
+                      onChange={(e) => updateMethod(method.id, 'active', e.target.checked)}
+                      className="w-4 h-4 accent-emerald-600"
+                    />
+                    <span className="text-sm text-gray-600">مفعّل</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">الاسم على الحساب</Label>
+                    <Input
+                      value={method.accountName}
+                      onChange={(e) => updateMethod(method.id, 'accountName', e.target.value)}
+                      placeholder="الاسم الموجود على الحساب"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">رقم التحويل</Label>
+                    <Input
+                      value={method.accountPhone}
+                      onChange={(e) => updateMethod(method.id, 'accountPhone', e.target.value)}
+                      placeholder="01xxxxxxxxx"
+                      dir="ltr"
+                      className="text-left"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">تعليمات للمستخدم</Label>
+                  <Input
+                    value={method.instructions}
+                    onChange={(e) => updateMethod(method.id, 'instructions', e.target.value)}
+                    placeholder="تعليمات التحويل"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          <Button
+            className="w-full bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 h-11"
+            disabled={saving}
+            onClick={handleSave}
+          >
+            {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ============== MAIN APP ==============
 function AppContent() {
   const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
@@ -2805,6 +2967,7 @@ function AppContent() {
       case 'admin-payments': return <AdminPayments />;
       case 'admin-approvals': return <AdminApprovals />;
       case 'admin-earnings': return <AdminEarnings />;
+      case 'admin-payment-settings': return <AdminPaymentSettings />;
       // Shop views
       case 'shop-dashboard': return <ShopDashboard />;
       case 'shop-create-order': return <ShopCreateOrder />;

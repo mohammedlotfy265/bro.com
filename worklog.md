@@ -79,3 +79,33 @@ Stage Summary:
 - Counter-offer flow still works for drivers who want different price
 - Commission system (10% in points) works correctly
 - Order assignment is immediate on direct accept
+
+---
+Task ID: admin-payment-settings
+Agent: main
+Task: Add admin page to edit payment transfer numbers (Vodafone Cash, InstaPay, Orange Cash)
+
+Work Log:
+- Added PaymentMethodSetting model to prisma/schema.prisma (id, name, icon, color, accountName, accountPhone, instructions, active)
+- Added AppSetting model for point price configuration
+- Ran prisma db push to apply schema changes
+- Updated /api/settings/payment-methods/route.ts:
+  - GET: reads from DB, auto-seeds defaults on first call
+  - PUT (new): admin can update account name, phone, instructions, active flag for each method, and point price
+- Added AdminPaymentSettings component in page.tsx:
+  - Card for point price editing
+  - Card per payment method (Vodafone/InstaPay/Orange) with: account name, account phone, instructions, active checkbox
+  - Save button with success toast
+- Added "put" method to api helper
+- Added "admin-payment-settings" to ViewType in store.ts
+- Added "إعدادات التحويل" menu item to AdminSidebar with CreditCard icon
+- Added case to renderView switch
+- Tested with Agent Browser:
+  - Admin can see and edit all 3 payment methods
+  - Changes save and persist after refresh
+  - Changes propagate to driver's "شراء نقاط" page
+
+Stage Summary:
+- Admin can now edit transfer numbers from "إعدادات التحويل" page
+- All changes save to database and reflect on user-facing pages
+- Feature works end-to-end
