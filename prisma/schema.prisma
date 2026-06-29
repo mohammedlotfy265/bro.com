@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  password  String
+  role      String   @default("DRIVER") // ADMIN, SHOP, DRIVER
+  points    Int      @default(0)
+  active    Boolean  @default(true)
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shops           Shop[]
+  deliveryOffers  DeliveryOffer[]
+  pointsTransactions PointsTransaction[]
+  ordersCreated   Order[]      @relation("OrderCreator")
+  ordersAccepted  Order[]      @relation("AcceptedDriver")
+  paymentRequests PaymentRequest[]
+}
+
+model Shop {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   @default("OTHER") // PHARMACY, SUPERMARKET, RESTAURANT, OTHER
+  address   String
+  phone     String
+  active    Boolean  @default(true)
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+  earnings Earning[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  shopId          String
+  shop            Shop     @relation(fields: [shopId], references: [id])
+  description     String
+  pickupAddress   String
+  deliveryAddress String
+  status          String   @default("PENDING") // PENDING, OFFERED, ACCEPTED, PICKED_UP, DELIVERED, CANCELLED
+  deliveryFee     Float    @default(0)
+  commission      Float    @default(0) // 10% commission for admin
+  pointsCost      Int      @default(1)
+  createdById     String
+  createdBy       User     @relation("OrderCreator", fields: [createdById], references: [id])
+  acceptedDriverId String?
+  acceptedDriver   User?   @relation("AcceptedDriver", fields: [acceptedDriverId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  offers DeliveryOffer[]
+  earning Earning?
+}
+
+model Earning {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  deliveryFee Float    // total delivery fee
+  commission  Float    // 10% commission amount
+  driverEarning Float  // 90% that driver gets
+  createdAt   DateTime @default(now())
+}
+
+model DeliveryOffer {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  driverId  String
+  driver    User     @relation(fields: [driverId], references: [id])
+  price     Float
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PointsTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Int      // positive = purchase/earning, negative = usage
+  type        String   // PURCHASE, USAGE, EARNING
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model PaymentRequest {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  amount          Int      // number of points requested
+  paymentMethod   String   // VODAFONE_CASH, INSTAPAY, ORANGE_CASH
+  senderPhone     String   // phone number the user sent from
+  senderName      String   // name on the payment account
+  receiptNumber   String?  // receipt/reference number from the transfer
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  adminNote       String?  // note from admin when approving/rejecting
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PaymentMethodSetting {
+  id            String   @id // VODAFONE_CASH, INSTAPAY, ORANGE_CASH
+  name          String   // display name (e.g. "فودافون كاش")
+  icon          String   @default("📱")
+  color         String   @default("from-red-500 to-red-600")
+  accountName   String   @default("المدير")
+  accountPhone  String   @default("01000000000")
+  instructions  String   @default("")
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AppSetting {
+  id        String   @id // single row id "main"
+  pointPrice Float   @default(1) // EGP per point
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

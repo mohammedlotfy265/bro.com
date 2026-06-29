@@ -1,0 +1,1902 @@
+     1→'use client';
+     2→
+     3→import { useState, useEffect, useCallback } from 'react';
+     4→import { useAppStore, type User, type Shop, type Order, type DeliveryOffer, type PointsTransaction } from '@/lib/store';
+     5→import { Button } from '@/components/ui/button';
+     6→import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+     7→import { Input } from '@/components/ui/input';
+     8→import { Label } from '@/components/ui/label';
+     9→import { Textarea } from '@/components/ui/textarea';
+    10→import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+    11→import { Badge } from '@/components/ui/badge';
+    12→import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+    13→import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+    14→import { Separator } from '@/components/ui/separator';
+    15→import { ScrollArea } from '@/components/ui/scroll-area';
+    16→import { Progress } from '@/components/ui/progress';
+    17→import { useToast } from '@/hooks/use-toast';
+    18→import {
+    19→  Store, Truck, Users, Package, Coins, LogOut, Menu, X, Plus, CheckCircle,
+    20→  XCircle, Clock, MapPin, Phone, Star, TrendingUp, ShoppingCart, ArrowLeft,
+    21→  Home, ClipboardList, DollarSign, Gift, ChevronLeft, Settings, UserPlus,
+    22→  Building2, CircleDot
+    23→} from 'lucide-react';
+    24→
+    25→// ============== API HELPERS ==============
+    26→const api = {
+    27→  get: async (url: string) => {
+    28→    const res = await fetch(url);
+    29→    return res.json();
+    30→  },
+    31→  post: async (url: string, body: unknown) => {
+    32→    const res = await fetch(url, {
+    33→      method: 'POST',
+    34→      headers: { 'Content-Type': 'application/json' },
+    35→      body: JSON.stringify(body),
+    36→    });
+    37→    return res.json();
+    38→  },
+    39→  patch: async (url: string, body: unknown) => {
+    40→    const res = await fetch(url, {
+    41→      method: 'PATCH',
+    42→      headers: { 'Content-Type': 'application/json' },
+    43→      body: JSON.stringify(body),
+    44→    });
+    45→    return res.json();
+    46→  },
+    47→};
+    48→
+    49→// ============== STATUS HELPERS ==============
+    50→const statusColors: Record<string, string> = {
+    51→  PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    52→  OFFERED: 'bg-blue-100 text-blue-800 border-blue-300',
+    53→  ACCEPTED: 'bg-green-100 text-green-800 border-green-300',
+    54→  PICKED_UP: 'bg-purple-100 text-purple-800 border-purple-300',
+    55→  DELIVERED: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    56→  CANCELLED: 'bg-red-100 text-red-800 border-red-300',
+    57→};
+    58→
+    59→const statusLabels: Record<string, string> = {
+    60→  PENDING: 'في الانتظار',
+    61→  OFFERED: 'فيه عروض',
+    62→  ACCEPTED: 'مقبول',
+    63→  PICKED_UP: 'تم الاستلام',
+    64→  DELIVERED: 'تم التوصيل',
+    65→  CANCELLED: 'ملغي',
+    66→};
+    67→
+    68→const shopTypeLabels: Record<string, string> = {
+    69→  PHARMACY: 'صيدلية',
+    70→  SUPERMARKET: 'سوبر ماركت',
+    71→  RESTAURANT: 'مطعم',
+    72→  OTHER: 'أخرى',
+    73→};
+    74→
+    75→const shopTypeIcons: Record<string, string> = {
+    76→  PHARMACY: '💊',
+    77→  SUPERMARKET: '🛒',
+    78→  RESTAURANT: '🍽️',
+    79→  OTHER: '🏪',
+    80→};
+    81→
+    82→// ============== LOGIN VIEW ==============
+    83→function LoginView() {
+    84→  const { setUser, setCurrentView } = useAppStore();
+    85→  const { toast } = useToast();
+    86→  const [phone, setPhone] = useState('');
+    87→  const [password, setPassword] = useState('');
+    88→  const [loading, setLoading] = useState(false);
+    89→  const [seeding, setSeeding] = useState(false);
+    90→
+    91→  const handleLogin = async (e: React.FormEvent) => {
+    92→    e.preventDefault();
+    93→    setLoading(true);
+    94→    try {
+    95→      const data = await api.post('/api/auth', { phone, password });
+    96→      if (data.error) {
+    97→        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+    98→      } else {
+    99→        setUser(data.user);
+   100→        const role = data.user.role;
+   101→        if (role === 'ADMIN') setCurrentView('admin-dashboard');
+   102→        else if (role === 'SHOP') setCurrentView('shop-dashboard');
+   103→        else setCurrentView('driver-dashboard');
+   104→        toast({ title: 'أهلاً!', description: `مرحباً ${data.user.name}` });
+   105→      }
+   106→    } catch {
+   107→      toast({ title: 'خطأ', description: 'حصل خطأ في الاتصال', variant: 'destructive' });
+   108→    }
+   109→    setLoading(false);
+   110→  };
+   111→
+   112→  const handleSeed = async () => {
+   113→    setSeeding(true);
+   114→    try {
+   115→      const data = await api.post('/api/seed', {});
+   116→      toast({ title: 'تم!', description: 'تم إنشاء البيانات الأولية. جرّب تسجيل الدخول' });
+   117→    } catch {
+   118→      toast({ title: 'خطأ', description: 'حصل خطأ', variant: 'destructive' });
+   119→    }
+   120→    setSeeding(false);
+   121→  };
+   122→
+   123→  return (
+   124→    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4">
+   125→      <div className="w-full max-w-md">
+   126→        <div className="text-center mb-8">
+   127→          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+   128→            <Truck className="w-10 h-10 text-white" />
+   129→          </div>
+   130→          <h1 className="text-3xl font-bold text-gray-900">دليفري برو</h1>
+   131→          <p className="text-gray-500 mt-2">نظام التوصيل الذكي</p>
+   132→        </div>
+   133→
+   134→        <Card className="shadow-xl border-0">
+   135→          <CardHeader className="text-center pb-2">
+   136→            <CardTitle className="text-xl">تسجيل الدخول</CardTitle>
+   137→            <CardDescription>ادخل رقم التليفون والباسورد</CardDescription>
+   138→          </CardHeader>
+   139→          <CardContent>
+   140→            <form onSubmit={handleLogin} className="space-y-4">
+   141→              <div className="space-y-2">
+   142→                <Label htmlFor="phone">رقم التليفون</Label>
+   143→                <div className="relative">
+   144→                  <Phone className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+   145→                  <Input
+   146→                    id="phone"
+   147→                    type="tel"
+   148→                    placeholder="01xxxxxxxxx"
+   149→                    value={phone}
+   150→                    onChange={(e) => setPhone(e.target.value)}
+   151→                    className="pr-10"
+   152→                    required
+   153→                  />
+   154→                </div>
+   155→              </div>
+   156→              <div className="space-y-2">
+   157→                <Label htmlFor="password">الباسورد</Label>
+   158→                <Input
+   159→                  id="password"
+   160→                  type="password"
+   161→                  placeholder="••••••••"
+   162→                  value={password}
+   163→                  onChange={(e) => setPassword(e.target.value)}
+   164→                  required
+   165→                />
+   166→              </div>
+   167→              <Button
+   168→                type="submit"
+   169→                className="w-full bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+   170→                disabled={loading}
+   171→              >
+   172→                {loading ? 'جاري الدخول...' : 'دخول'}
+   173→              </Button>
+   174→            </form>
+   175→
+   176→            <div className="mt-4 text-center">
+   177→              <Button
+   178→                variant="link"
+   179→                onClick={() => setCurrentView('register')}
+   180→                className="text-emerald-600"
+   181→              >
+   182→                حساب جديد
+   183→              </Button>
+   184→            </div>
+   185→
+   186→            <Separator className="my-4" />
+   187→
+   188→            <div className="text-center">
+   189→              <p className="text-xs text-gray-400 mb-2">أول مرة تستخدم التطبيق؟</p>
+   190→              <Button
+   191→                variant="outline"
+   192→                size="sm"
+   193→                onClick={handleSeed}
+   194→                disabled={seeding}
+   195→                className="text-xs"
+   196→              >
+   197→                {seeding ? 'جاري التجهيز...' : 'إنشاء بيانات تجريبية'}
+   198→              </Button>
+   199→              <div className="mt-3 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
+   200→                <p className="font-semibold text-gray-700">حسابات تجريبية:</p>
+   201→                <p>أدمن: 01000000000 / admin123</p>
+   202→                <p>شوب: 01100000000 / shop123</p>
+   203→                <p>دليفري: 01200000000 / driver123</p>
+   204→              </div>
+   205→            </div>
+   206→          </CardContent>
+   207→        </Card>
+   208→      </div>
+   209→    </div>
+   210→  );
+   211→}
+   212→
+   213→// ============== REGISTER VIEW ==============
+   214→function RegisterView() {
+   215→  const { setCurrentView } = useAppStore();
+   216→  const { toast } = useToast();
+   217→  const [name, setName] = useState('');
+   218→  const [phone, setPhone] = useState('');
+   219→  const [password, setPassword] = useState('');
+   220→  const [role, setRole] = useState('DRIVER');
+   221→  const [loading, setLoading] = useState(false);
+   222→
+   223→  const handleRegister = async (e: React.FormEvent) => {
+   224→    e.preventDefault();
+   225→    setLoading(true);
+   226→    try {
+   227→      const data = await api.post('/api/auth/register', { name, phone, password, role });
+   228→      if (data.error) {
+   229→        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+   230→      } else {
+   231→        toast({ title: 'تم التسجيل!', description: 'قدرك تسجل دخول دلوقتي' });
+   232→        setCurrentView('login');
+   233→      }
+   234→    } catch {
+   235→      toast({ title: 'خطأ', description: 'حصل خطأ', variant: 'destructive' });
+   236→    }
+   237→    setLoading(false);
+   238→  };
+   239→
+   240→  return (
+   241→    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4">
+   242→      <div className="w-full max-w-md">
+   243→        <div className="text-center mb-6">
+   244→          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+   245→            <UserPlus className="w-8 h-8 text-white" />
+   246→          </div>
+   247→          <h1 className="text-2xl font-bold text-gray-900">حساب جديد</h1>
+   248→        </div>
+   249→
+   250→        <Card className="shadow-xl border-0">
+   251→          <CardContent className="pt-6">
+   252→            <form onSubmit={handleRegister} className="space-y-4">
+   253→              <div className="space-y-2">
+   254→                <Label>الاسم</Label>
+   255→                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="اسمك" required />
+   256→              </div>
+   257→              <div className="space-y-2">
+   258→                <Label>رقم التليفون</Label>
+   259→                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01xxxxxxxxx" required />
+   260→              </div>
+   261→              <div className="space-y-2">
+   262→                <Label>الباسورد</Label>
+   263→                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+   264→              </div>
+   265→              <div className="space-y-2">
+   266→                <Label>نوع الحساب</Label>
+   267→                <Select value={role} onValueChange={setRole}>
+   268→                  <SelectTrigger>
+   269→                    <SelectValue />
+   270→                  </SelectTrigger>
+   271→                  <SelectContent>
+   272→                    <SelectItem value="SHOP">
+   273→                      <span className="flex items-center gap-2">
+   274→                        <Store className="w-4 h-4" /> صاحب محل (شوب)
+   275→                      </span>
+   276→                    </SelectItem>
+   277→                    <SelectItem value="DRIVER">
+   278→                      <span className="flex items-center gap-2">
+   279→                        <Truck className="w-4 h-4" /> دليفري
+   280→                      </span>
+   281→                    </SelectItem>
+   282→                  </SelectContent>
+   283→                </Select>
+   284→              </div>
+   285→              <Button
+   286→                type="submit"
+   287→                className="w-full bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+   288→                disabled={loading}
+   289→              >
+   290→                {loading ? 'جاري التسجيل...' : 'تسجيل'}
+   291→              </Button>
+   292→            </form>
+   293→            <div className="mt-4 text-center">
+   294→              <Button variant="link" onClick={() => setCurrentView('login')} className="text-emerald-600">
+   295→                عندي حساب بالفعل
+   296→              </Button>
+   297→            </div>
+   298→          </CardContent>
+   299→        </Card>
+   300→      </div>
+   301→    </div>
+   302→  );
+   303→}
+   304→
+   305→// ============== ADMIN SIDEBAR ==============
+   306→function AdminSidebar() {
+   307→  const { currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+   308→
+   309→  const menuItems = [
+   310→    { id: 'admin-dashboard', label: 'الرئيسية', icon: Home },
+   311→    { id: 'admin-shops', label: 'المحلات', icon: Building2 },
+   312→    { id: 'admin-users', label: 'المستخدمين', icon: Users },
+   313→    { id: 'admin-orders', label: 'الطلبات', icon: ClipboardList },
+   314→  ];
+   315→
+   316→  return (
+   317→    <>
+   318→      {/* Mobile overlay */}
+   319→      {sidebarOpen && (
+   320→        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+   321→      )}
+   322→      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+   323→        <div className="p-4 border-b flex items-center justify-between">
+   324→          <div className="flex items-center gap-2">
+   325→            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+   326→              <Truck className="w-4 h-4 text-white" />
+   327→            </div>
+   328→            <span className="font-bold text-lg">دليفري برو</span>
+   329→          </div>
+   330→          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+   331→            <X className="w-4 h-4" />
+   332→          </Button>
+   333→        </div>
+   334→        <nav className="p-3 space-y-1">
+   335→          {menuItems.map((item) => (
+   336→            <button
+   337→              key={item.id}
+   338→              onClick={() => setCurrentView(item.id as typeof currentView)}
+   339→              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+   340→                currentView === item.id
+   341→                  ? 'bg-emerald-50 text-emerald-700'
+   342→                  : 'text-gray-600 hover:bg-gray-50'
+   343→              }`}
+   344→            >
+   345→              <item.icon className="w-4 h-4" />
+   346→              {item.label}
+   347→            </button>
+   348→          ))}
+   349→        </nav>
+   350→        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
+   351→          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
+   352→            <LogOut className="w-4 h-4" />
+   353→            تسجيل خروج
+   354→          </Button>
+   355→        </div>
+   356→      </aside>
+   357→    </>
+   358→  );
+   359→}
+   360→
+   361→// ============== ADMIN DASHBOARD ==============
+   362→function AdminDashboard() {
+   363→  const { setCurrentView } = useAppStore();
+   364→  const [stats, setStats] = useState<Record<string, number>>({});
+   365→  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+   366→  const [loading, setLoading] = useState(true);
+   367→
+   368→  useEffect(() => {
+   369→    api.get('/api/stats').then((data) => {
+   370→      if (data.stats) {
+   371→        setStats(data.stats);
+   372→        setRecentOrders(data.recentOrders || []);
+   373→      }
+   374→      setLoading(false);
+   375→    });
+   376→  }, []);
+   377→
+   378→  const statCards = [
+   379→    { label: 'المحلات', value: stats.totalShops || 0, icon: Building2, color: 'from-emerald-500 to-green-600' },
+   380→    { label: 'الدليفري', value: stats.totalDrivers || 0, icon: Truck, color: 'from-blue-500 to-cyan-600' },
+   381→    { label: 'الطلبات', value: stats.totalOrders || 0, icon: Package, color: 'from-orange-500 to-amber-600' },
+   382→    { label: 'في الانتظار', value: stats.pendingOrders || 0, icon: Clock, color: 'from-yellow-500 to-orange-500' },
+   383→    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: CheckCircle, color: 'from-teal-500 to-emerald-600' },
+   384→    { label: 'إجمالي المستخدمين', value: stats.totalUsers || 0, icon: Users, color: 'from-purple-500 to-violet-600' },
+   385→  ];
+   386→
+   387→  return (
+   388→    <div className="space-y-6">
+   389→      <div>
+   390→        <h2 className="text-2xl font-bold text-gray-900">لوحة تحكم الأدمن</h2>
+   391→        <p className="text-gray-500 mt-1">نظرة عامة على النظام</p>
+   392→      </div>
+   393→
+   394→      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+   395→        {statCards.map((stat) => (
+   396→          <Card key={stat.label} className="border-0 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+   397→            <CardContent className="p-4">
+   398→              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
+   399→                <stat.icon className="w-5 h-5 text-white" />
+   400→              </div>
+   401→              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+   402→              <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+   403→            </CardContent>
+   404→          </Card>
+   405→        ))}
+   406→      </div>
+   407→
+   408→      <Card className="border-0 shadow-md">
+   409→        <CardHeader className="pb-3">
+   410→          <CardTitle className="text-lg flex items-center gap-2">
+   411→            <Clock className="w-5 h-5 text-emerald-600" />
+   412→            آخر الطلبات
+   413→          </CardTitle>
+   414→        </CardHeader>
+   415→        <CardContent>
+   416→          {loading ? (
+   417→            <div className="space-y-3">
+   418→              {[1, 2, 3].map((i) => (
+   419→                <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+   420→              ))}
+   421→            </div>
+   422→          ) : recentOrders.length === 0 ? (
+   423→            <p className="text-center text-gray-400 py-8">مفيش طلبات لسه</p>
+   424→          ) : (
+   425→            <div className="space-y-3">
+   426→              {recentOrders.map((order) => (
+   427→                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+   428→                  <div>
+   429→                    <p className="font-medium text-sm">{order.description}</p>
+   430→                    <p className="text-xs text-gray-500">{order.shop?.name}</p>
+   431→                  </div>
+   432→                  <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
+   433→                </div>
+   434→              ))}
+   435→            </div>
+   436→          )}
+   437→        </CardContent>
+   438→      </Card>
+   439→    </div>
+   440→  );
+   441→}
+   442→
+   443→// ============== ADMIN SHOPS ==============
+   444→function AdminShops() {
+   445→  const { toast } = useToast();
+   446→  const [shops, setShops] = useState<Shop[]>([]);
+   447→  const [loading, setLoading] = useState(true);
+   448→  const [showAdd, setShowAdd] = useState(false);
+   449→  const [shopUsers, setShopUsers] = useState<User[]>([]);
+   450→
+   451→  // Form state
+   452→  const [formName, setFormName] = useState('');
+   453→  const [formType, setFormType] = useState('PHARMACY');
+   454→  const [formAddress, setFormAddress] = useState('');
+   455→  const [formPhone, setFormPhone] = useState('');
+   456→  const [formOwnerId, setFormOwnerId] = useState('');
+   457→
+   458→  const loadShops = useCallback(async () => {
+   459→    const data = await api.get('/api/shops');
+   460→    if (data.shops) setShops(data.shops);
+   461→    setLoading(false);
+   462→  }, []);
+   463→
+   464→  const loadShopUsers = useCallback(async () => {
+   465→    const data = await api.get('/api/users?role=SHOP');
+   466→    if (data.users) setShopUsers(data.users);
+   467→  }, []);
+   468→
+   469→  useEffect(() => {
+   470→    loadShops();
+   471→    loadShopUsers();
+   472→  }, [loadShops, loadShopUsers]);
+   473→
+   474→  const handleAddShop = async (e: React.FormEvent) => {
+   475→    e.preventDefault();
+   476→    const data = await api.post('/api/shops', {
+   477→      name: formName, type: formType, address: formAddress, phone: formPhone, ownerId: formOwnerId,
+   478→    });
+   479→    if (data.error) {
+   480→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+   481→    } else {
+   482→      toast({ title: 'تم!', description: 'تم إضافة المحل بنجاح' });
+   483→      setShowAdd(false);
+   484→      setFormName(''); setFormAddress(''); setFormPhone(''); setFormOwnerId('');
+   485→      loadShops();
+   486→    }
+   487→  };
+   488→
+   489→  const handleAddShopUser = async () => {
+   490→    const name = prompt('اسم صاحب المحل:');
+   491→    const phone = prompt('رقم التليفون:');
+   492→    const password = prompt('الباسورد:');
+   493→    if (!name || !phone || !password) return;
+   494→    const data = await api.post('/api/users', { name, phone, password, role: 'SHOP', adminRole: 'ADMIN' });
+   495→    if (data.error) {
+   496→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+   497→    } else {
+   498→      toast({ title: 'تم!', description: 'تم إضافة مستخدم شوب' });
+   499→      loadShopUsers();
+   500→    }
+   501→  };
+   502→
+   503→  return (
+   504→    <div className="space-y-6">
+   505→      <div className="flex items-center justify-between">
+   506→        <div>
+   507→          <h2 className="text-2xl font-bold text-gray-900">المحلات</h2>
+   508→          <p className="text-gray-500 mt-1">إدارة المحلات المسجلة</p>
+   509→        </div>
+   510→        <Dialog open={showAdd} onOpenChange={setShowAdd}>
+   511→          <DialogTrigger asChild>
+   512→            <Button className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+   513→              <Plus className="w-4 h-4" /> إضافة محل
+   514→            </Button>
+   515→          </DialogTrigger>
+   516→          <DialogContent>
+   517→            <DialogHeader>
+   518→              <DialogTitle>إضافة محل جديد</DialogTitle>
+   519→              <DialogDescription>أضف محل جديد للنظام</DialogDescription>
+   520→            </DialogHeader>
+   521→            <form onSubmit={handleAddShop} className="space-y-4">
+   522→              <div className="space-y-2">
+   523→                <Label>اسم المحل</Label>
+   524→                <Input value={formName} onChange={(e) => setFormName(e.target.value)} required />
+   525→              </div>
+   526→              <div className="space-y-2">
+   527→                <Label>نوع المحل</Label>
+   528→                <Select value={formType} onValueChange={setFormType}>
+   529→                  <SelectTrigger><SelectValue /></SelectTrigger>
+   530→                  <SelectContent>
+   531→                    <SelectItem value="PHARMACY">💊 صيدلية</SelectItem>
+   532→                    <SelectItem value="SUPERMARKET">🛒 سوبر ماركت</SelectItem>
+   533→                    <SelectItem value="RESTAURANT">🍽️ مطعم</SelectItem>
+   534→                    <SelectItem value="OTHER">🏪 أخرى</SelectItem>
+   535→                  </SelectContent>
+   536→                </Select>
+   537→              </div>
+   538→              <div className="space-y-2">
+   539→                <Label>العنوان</Label>
+   540→                <Input value={formAddress} onChange={(e) => setFormAddress(e.target.value)} required />
+   541→              </div>
+   542→              <div className="space-y-2">
+   543→                <Label>رقم التليفون</Label>
+   544→                <Input value={formPhone} onChange={(e) => setFormPhone(e.target.value)} required />
+   545→              </div>
+   546→              <div className="space-y-2">
+   547→                <div className="flex items-center justify-between">
+   548→                  <Label>صاحب المحل</Label>
+   549→                  <Button type="button" variant="link" size="sm" className="text-emerald-600" onClick={handleAddShopUser}>
+   550→                    إضافة مستخدم جديد
+   551→                  </Button>
+   552→                </div>
+   553→                <Select value={formOwnerId} onValueChange={setFormOwnerId}>
+   554→                  <SelectTrigger><SelectValue placeholder="اختر صاحب المحل" /></SelectTrigger>
+   555→                  <SelectContent>
+   556→                    {shopUsers.map((u) => (
+   557→                      <SelectItem key={u.id} value={u.id}>{u.name} - {u.phone}</SelectItem>
+   558→                    ))}
+   559→                  </SelectContent>
+   560→                </Select>
+   561→              </div>
+   562→              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700">إضافة المحل</Button>
+   563→            </form>
+   564→          </DialogContent>
+   565→        </Dialog>
+   566→      </div>
+   567→
+   568→      {loading ? (
+   569→        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   570→          {[1, 2, 3, 4].map((i) => (
+   571→            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+   572→          ))}
+   573→        </div>
+   574→      ) : shops.length === 0 ? (
+   575→        <Card className="border-0 shadow-md">
+   576→          <CardContent className="py-12 text-center">
+   577→            <Store className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+   578→            <p className="text-gray-400">مفيش محلات مسجلة لسه</p>
+   579→          </CardContent>
+   580→        </Card>
+   581→      ) : (
+   582→        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   583→          {shops.map((shop) => (
+   584→            <Card key={shop.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+   585→              <CardContent className="p-5">
+   586→                <div className="flex items-start justify-between">
+   587→                  <div className="flex items-center gap-3">
+   588→                    <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-2xl">
+   589→                      {shopTypeIcons[shop.type] || '🏪'}
+   590→                    </div>
+   591→                    <div>
+   592→                      <h3 className="font-bold text-gray-900">{shop.name}</h3>
+   593→                      <Badge variant="outline" className="mt-1">{shopTypeLabels[shop.type] || shop.type}</Badge>
+   594→                    </div>
+   595→                  </div>
+   596→                  <Badge className={shop.active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}>
+   597→                    {shop.active ? 'نشط' : 'معلق'}
+   598→                  </Badge>
+   599→                </div>
+   600→                <div className="mt-4 space-y-2 text-sm text-gray-500">
+   601→                  <div className="flex items-center gap-2">
+   602→                    <MapPin className="w-3.5 h-3.5" /> {shop.address}
+   603→                  </div>
+   604→                  <div className="flex items-center gap-2">
+   605→                    <Phone className="w-3.5 h-3.5" /> {shop.phone}
+   606→                  </div>
+   607→                  <div className="flex items-center gap-2">
+   608→                    <Users className="w-3.5 h-3.5" /> {shop.owner?.name}
+   609→                  </div>
+   610→                </div>
+   611→              </CardContent>
+   612→            </Card>
+   613→          ))}
+   614→        </div>
+   615→      )}
+   616→    </div>
+   617→  );
+   618→}
+   619→
+   620→// ============== ADMIN USERS ==============
+   621→function AdminUsers() {
+   622→  const { toast } = useToast();
+   623→  const [users, setUsers] = useState<User[]>([]);
+   624→  const [loading, setLoading] = useState(true);
+   625→  const [filter, setFilter] = useState('all');
+   626→
+   627→  const loadUsers = useCallback(async () => {
+   628→    const url = filter !== 'all' ? `/api/users?role=${filter}` : '/api/users';
+   629→    const data = await api.get(url);
+   630→    if (data.users) setUsers(data.users);
+   631→    setLoading(false);
+   632→  }, [filter]);
+   633→
+   634→  useEffect(() => {
+   635→    loadUsers();
+   636→  }, [loadUsers]);
+   637→
+   638→  const handleToggleActive = async (userId: string, active: boolean) => {
+   639→    const data = await api.patch('/api/users', { userId, active: !active, adminRole: 'ADMIN' });
+   640→    if (data.error) {
+   641→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+   642→    } else {
+   643→      toast({ title: 'تم!', description: active ? 'تم تعطيل المستخدم' : 'تم تفعيل المستخدم' });
+   644→      loadUsers();
+   645→    }
+   646→  };
+   647→
+   648→  const roleLabels: Record<string, string> = { ADMIN: 'أدمن', SHOP: 'شوب', DRIVER: 'دليفري' };
+   649→  const roleColors: Record<string, string> = {
+   650→    ADMIN: 'bg-red-100 text-red-700',
+   651→    SHOP: 'bg-blue-100 text-blue-700',
+   652→    DRIVER: 'bg-emerald-100 text-emerald-700',
+   653→  };
+   654→
+   655→  return (
+   656→    <div className="space-y-6">
+   657→      <div className="flex items-center justify-between flex-wrap gap-3">
+   658→        <div>
+   659→          <h2 className="text-2xl font-bold text-gray-900">المستخدمين</h2>
+   660→          <p className="text-gray-500 mt-1">إدارة المستخدمين</p>
+   661→        </div>
+   662→        <Tabs value={filter} onValueChange={setFilter}>
+   663→          <TabsList>
+   664→            <TabsTrigger value="all">الكل</TabsTrigger>
+   665→            <TabsTrigger value="SHOP">شوب</TabsTrigger>
+   666→            <TabsTrigger value="DRIVER">دليفري</TabsTrigger>
+   667→          </TabsList>
+   668→        </Tabs>
+   669→      </div>
+   670→
+   671→      {loading ? (
+   672→        <div className="space-y-3">
+   673→          {[1, 2, 3].map((i) => (
+   674→            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+   675→          ))}
+   676→        </div>
+   677→      ) : (
+   678→        <div className="space-y-3">
+   679→          {users.map((user) => (
+   680→            <Card key={user.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+   681→              <CardContent className="p-4 flex items-center justify-between">
+   682→                <div className="flex items-center gap-3">
+   683→                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+   684→                    {user.role === 'ADMIN' ? <Settings className="w-5 h-5 text-red-500" /> :
+   685→                     user.role === 'SHOP' ? <Store className="w-5 h-5 text-blue-500" /> :
+   686→                     <Truck className="w-5 h-5 text-emerald-500" />}
+   687→                  </div>
+   688→                  <div>
+   689→                    <p className="font-medium">{user.name}</p>
+   690→                    <div className="flex items-center gap-2 mt-0.5">
+   691→                      <span className="text-xs text-gray-500">{user.phone}</span>
+   692→                      <Badge className={`text-xs ${roleColors[user.role]}`}>
+   693→                        {roleLabels[user.role]}
+   694→                      </Badge>
+   695→                      {user.role === 'DRIVER' && (
+   696→                        <span className="text-xs text-emerald-600 flex items-center gap-1">
+   697→                          <Coins className="w-3 h-3" /> {user.points}
+   698→                        </span>
+   699→                      )}
+   700→                    </div>
+   701→                  </div>
+   702→                </div>
+   703→                {user.role !== 'ADMIN' && (
+   704→                  <Button
+   705→                    variant={user.active ? 'outline' : 'default'}
+   706→                    size="sm"
+   707→                    onClick={() => handleToggleActive(user.id, user.active)}
+   708→                    className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-emerald-600 hover:bg-emerald-700'}
+   709→                  >
+   710→                    {user.active ? 'تعطيل' : 'تفعيل'}
+   711→                  </Button>
+   712→                )}
+   713→              </CardContent>
+   714→            </Card>
+   715→          ))}
+   716→        </div>
+   717→      )}
+   718→    </div>
+   719→  );
+   720→}
+   721→
+   722→// ============== ADMIN ORDERS ==============
+   723→function AdminOrders() {
+   724→  const [orders, setOrders] = useState<Order[]>([]);
+   725→  const [loading, setLoading] = useState(true);
+   726→
+   727→  useEffect(() => {
+   728→    api.get('/api/orders').then((data) => {
+   729→      if (data.orders) setOrders(data.orders);
+   730→      setLoading(false);
+   731→    });
+   732→  }, []);
+   733→
+   734→  const updateOrderStatus = async (orderId: string, status: string) => {
+   735→    await api.patch(`/api/orders/${orderId}`, { status });
+   736→    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
+   737→  };
+   738→
+   739→  return (
+   740→    <div className="space-y-6">
+   741→      <div>
+   742→        <h2 className="text-2xl font-bold text-gray-900">كل الطلبات</h2>
+   743→        <p className="text-gray-500 mt-1">متابعة وإدارة الطلبات</p>
+   744→      </div>
+   745→
+   746→      {loading ? (
+   747→        <div className="space-y-3">
+   748→          {[1, 2, 3].map((i) => (
+   749→            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+   750→          ))}
+   751→        </div>
+   752→      ) : orders.length === 0 ? (
+   753→        <Card className="border-0 shadow-md">
+   754→          <CardContent className="py-12 text-center">
+   755→            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+   756→            <p className="text-gray-400">مفيش طلبات لسه</p>
+   757→          </CardContent>
+   758→        </Card>
+   759→      ) : (
+   760→        <div className="space-y-3">
+   761→          {orders.map((order) => (
+   762→            <Card key={order.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+   763→              <CardContent className="p-4">
+   764→                <div className="flex items-start justify-between">
+   765→                  <div className="space-y-1">
+   766→                    <div className="flex items-center gap-2">
+   767→                      <span className="text-lg">{shopTypeIcons[order.shop?.type] || '🏪'}</span>
+   768→                      <span className="font-medium">{order.shop?.name}</span>
+   769→                    </div>
+   770→                    <p className="text-sm text-gray-600">{order.description}</p>
+   771→                    <div className="flex items-center gap-4 text-xs text-gray-400">
+   772→                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> من: {order.pickupAddress}</span>
+   773→                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</span>
+   774→                    </div>
+   775→                    {order.acceptedDriver && (
+   776→                      <p className="text-xs text-emerald-600 flex items-center gap-1">
+   777→                        <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name}
+   778→                      </p>
+   779→                    )}
+   780→                    {order.offers && order.offers.length > 0 && (
+   781→                      <p className="text-xs text-blue-600">{order.offers.length} عرض</p>
+   782→                    )}
+   783→                  </div>
+   784→                  <div className="flex flex-col items-end gap-2">
+   785→                    <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
+   786→                    <span className="text-sm font-bold text-emerald-600">{order.deliveryFee} ج.م</span>
+   787→                    {(order.status === 'ACCEPTED' || order.status === 'PICKED_UP') && (
+   788→                      <div className="flex gap-1">
+   789→                        {order.status === 'ACCEPTED' && (
+   790→                          <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => updateOrderStatus(order.id, 'PICKED_UP')}>
+   791→                            تم الاستلام
+   792→                          </Button>
+   793→                        )}
+   794→                        {order.status === 'PICKED_UP' && (
+   795→                          <Button size="sm" className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+   796→                            تم التوصيل
+   797→                          </Button>
+   798→                        )}
+   799→                      </div>
+   800→                    )}
+   801→                  </div>
+   802→                </div>
+   803→              </CardContent>
+   804→            </Card>
+   805→          ))}
+   806→        </div>
+   807→      )}
+   808→    </div>
+   809→  );
+   810→}
+   811→
+   812→// ============== SHOP SIDEBAR ==============
+   813→function ShopSidebar() {
+   814→  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+   815→
+   816→  const menuItems = [
+   817→    { id: 'shop-dashboard', label: 'الرئيسية', icon: Home },
+   818→    { id: 'shop-create-order', label: 'طلب جديد', icon: Plus },
+   819→    { id: 'shop-orders', label: 'طلباتي', icon: ClipboardList },
+   820→  ];
+   821→
+   822→  return (
+   823→    <>
+   824→      {sidebarOpen && (
+   825→        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+   826→      )}
+   827→      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+   828→        <div className="p-4 border-b flex items-center justify-between">
+   829→          <div className="flex items-center gap-2">
+   830→            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+   831→              <Store className="w-4 h-4 text-white" />
+   832→            </div>
+   833→            <span className="font-bold text-lg">شوبي</span>
+   834→          </div>
+   835→          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+   836→            <X className="w-4 h-4" />
+   837→          </Button>
+   838→        </div>
+   839→        <div className="p-4 bg-blue-50 m-3 rounded-lg">
+   840→          <p className="font-medium text-sm text-blue-900">{user?.name}</p>
+   841→          <p className="text-xs text-blue-600">{user?.phone}</p>
+   842→        </div>
+   843→        <nav className="p-3 space-y-1">
+   844→          {menuItems.map((item) => (
+   845→            <button
+   846→              key={item.id}
+   847→              onClick={() => setCurrentView(item.id as typeof currentView)}
+   848→              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+   849→                currentView === item.id ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+   850→              }`}
+   851→            >
+   852→              <item.icon className="w-4 h-4" />
+   853→              {item.label}
+   854→            </button>
+   855→          ))}
+   856→        </nav>
+   857→        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
+   858→          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
+   859→            <LogOut className="w-4 h-4" />
+   860→            تسجيل خروج
+   861→          </Button>
+   862→        </div>
+   863→      </aside>
+   864→    </>
+   865→  );
+   866→}
+   867→
+   868→// ============== SHOP DASHBOARD ==============
+   869→function ShopDashboard() {
+   870→  const { user, setCurrentView } = useAppStore();
+   871→  const [myShops, setMyShops] = useState<Shop[]>([]);
+   872→  const [myOrders, setMyOrders] = useState<Order[]>([]);
+   873→  const [loading, setLoading] = useState(true);
+   874→
+   875→  useEffect(() => {
+   876→    if (!user) return;
+   877→    Promise.all([
+   878→      api.get('/api/shops'),
+   879→      api.get('/api/orders'),
+   880→    ]).then(([shopsData, ordersData]) => {
+   881→      if (shopsData.shops) {
+   882→        const filtered = shopsData.shops.filter((s: Shop) => s.owner?.id === user.id);
+   883→        setMyShops(filtered);
+   884→      }
+   885→      if (ordersData.orders) {
+   886→        const shopIds = myShops.map((s) => s.id);
+   887→        setMyOrders(ordersData.orders.filter((o: Order) => shopIds.includes(o.shopId)));
+   888→      }
+   889→      setLoading(false);
+   890→    });
+   891→  }, [user, myShops]);
+   892→
+   893→  const pendingCount = myOrders.filter((o) => ['PENDING', 'OFFERED'].includes(o.status)).length;
+   894→  const activeCount = myOrders.filter((o) => ['ACCEPTED', 'PICKED_UP'].includes(o.status)).length;
+   895→  const deliveredCount = myOrders.filter((o) => o.status === 'DELIVERED').length;
+   896→
+   897→  return (
+   898→    <div className="space-y-6">
+   899→      <div>
+   900→        <h2 className="text-2xl font-bold text-gray-900">أهلاً يا {user?.name} 👋</h2>
+   901→        <p className="text-gray-500 mt-1">لوحة تحكم المحل</p>
+   902→      </div>
+   903→
+   904→      <div className="grid grid-cols-3 gap-3">
+   905→        <Card className="border-0 shadow-md">
+   906→          <CardContent className="p-4 text-center">
+   907→            <Clock className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
+   908→            <p className="text-2xl font-bold">{pendingCount}</p>
+   909→            <p className="text-xs text-gray-500">في الانتظار</p>
+   910→          </CardContent>
+   911→        </Card>
+   912→        <Card className="border-0 shadow-md">
+   913→          <CardContent className="p-4 text-center">
+   914→            <Truck className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+   915→            <p className="text-2xl font-bold">{activeCount}</p>
+   916→            <p className="text-xs text-gray-500">نشطة</p>
+   917→          </CardContent>
+   918→        </Card>
+   919→        <Card className="border-0 shadow-md">
+   920→          <CardContent className="p-4 text-center">
+   921→            <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+   922→            <p className="text-2xl font-bold">{deliveredCount}</p>
+   923→            <p className="text-xs text-gray-500">تم التوصيل</p>
+   924→          </CardContent>
+   925→        </Card>
+   926→      </div>
+   927→
+   928→      <Card className="border-0 shadow-md">
+   929→        <CardHeader className="pb-3">
+   930→          <CardTitle className="text-lg flex items-center gap-2">
+   931→            <Store className="w-5 h-5 text-blue-600" />
+   932→            محلاتي
+   933→          </CardTitle>
+   934→        </CardHeader>
+   935→        <CardContent>
+   936→          {myShops.length === 0 ? (
+   937→            <p className="text-center text-gray-400 py-6">مفيش محلات مسجلة باسمك. الأدمن لازم يضيفك الأول.</p>
+   938→          ) : (
+   939→            <div className="space-y-3">
+   940→              {myShops.map((shop) => (
+   941→                <div key={shop.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+   942→                  <span className="text-2xl">{shopTypeIcons[shop.type]}</span>
+   943→                  <div>
+   944→                    <p className="font-medium">{shop.name}</p>
+   945→                    <p className="text-xs text-gray-500">{shopTypeLabels[shop.type]} - {shop.address}</p>
+   946→                  </div>
+   947→                </div>
+   948→              ))}
+   949→            </div>
+   950→          )}
+   951→        </CardContent>
+   952→      </Card>
+   953→
+   954→      <Button
+   955→        className="w-full bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2 py-6 text-lg"
+   956→        onClick={() => setCurrentView('shop-create-order')}
+   957→      >
+   958→        <Plus className="w-5 h-5" /> طلب توصيلة جديدة
+   959→      </Button>
+   960→    </div>
+   961→  );
+   962→}
+   963→
+   964→// ============== SHOP CREATE ORDER ==============
+   965→function ShopCreateOrder() {
+   966→  const { user, setCurrentView } = useAppStore();
+   967→  const { toast } = useToast();
+   968→  const [myShops, setMyShops] = useState<Shop[]>([]);
+   969→  const [selectedShop, setSelectedShop] = useState('');
+   970→  const [description, setDescription] = useState('');
+   971→  const [pickupAddress, setPickupAddress] = useState('');
+   972→  const [deliveryAddress, setDeliveryAddress] = useState('');
+   973→  const [deliveryFee, setDeliveryFee] = useState('');
+   974→  const [loading, setLoading] = useState(false);
+   975→
+   976→  useEffect(() => {
+   977→    if (!user) return;
+   978→    api.get('/api/shops').then((data) => {
+   979→      if (data.shops) {
+   980→        const filtered = data.shops.filter((s: Shop) => s.owner?.id === user.id);
+   981→        setMyShops(filtered);
+   982→        if (filtered.length > 0) {
+   983→          setSelectedShop(filtered[0].id);
+   984→          setPickupAddress(filtered[0].address);
+   985→        }
+   986→      }
+   987→    });
+   988→  }, [user]);
+   989→
+   990→  const handleSubmit = async (e: React.FormEvent) => {
+   991→    e.preventDefault();
+   992→    if (!user) return;
+   993→    setLoading(true);
+   994→    try {
+   995→      const data = await api.post('/api/orders', {
+   996→        shopId: selectedShop,
+   997→        description,
+   998→        pickupAddress,
+   999→        deliveryAddress,
+  1000→        deliveryFee: parseFloat(deliveryFee) || 0,
+  1001→        pointsCost: 1,
+  1002→        createdById: user.id,
+  1003→      });
+  1004→      if (data.error) {
+  1005→        toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+  1006→      } else {
+  1007→        toast({ title: 'تم!', description: 'تم إنشاء الطلب بنجاح' });
+  1008→        setCurrentView('shop-orders');
+  1009→      }
+  1010→    } catch {
+  1011→      toast({ title: 'خطأ', description: 'حصل خطأ', variant: 'destructive' });
+  1012→    }
+  1013→    setLoading(false);
+  1014→  };
+  1015→
+  1016→  return (
+  1017→    <div className="space-y-6">
+  1018→      <div>
+  1019→        <h2 className="text-2xl font-bold text-gray-900">طلب توصيلة جديدة</h2>
+  1020→        <p className="text-gray-500 mt-1">أنشئ طلب توصيل جديد</p>
+  1021→      </div>
+  1022→
+  1023→      <Card className="border-0 shadow-md">
+  1024→        <CardContent className="pt-6">
+  1025→          <form onSubmit={handleSubmit} className="space-y-4">
+  1026→            <div className="space-y-2">
+  1027→              <Label>المحل</Label>
+  1028→              <Select value={selectedShop} onValueChange={(v) => {
+  1029→                setSelectedShop(v);
+  1030→                const shop = myShops.find((s) => s.id === v);
+  1031→                if (shop) setPickupAddress(shop.address);
+  1032→              }}>
+  1033→                <SelectTrigger><SelectValue placeholder="اختر المحل" /></SelectTrigger>
+  1034→                <SelectContent>
+  1035→                  {myShops.map((shop) => (
+  1036→                    <SelectItem key={shop.id} value={shop.id}>
+  1037→                      {shopTypeIcons[shop.type]} {shop.name}
+  1038→                    </SelectItem>
+  1039→                  ))}
+  1040→                </SelectContent>
+  1041→              </Select>
+  1042→            </div>
+  1043→            <div className="space-y-2">
+  1044→              <Label>وصف الطلب</Label>
+  1045→              <Textarea
+  1046→                value={description}
+  1047→                onChange={(e) => setDescription(e.target.value)}
+  1048→                placeholder="وصف الطلب أو اللي محتاج توصيله..."
+  1049→                required
+  1050→              />
+  1051→            </div>
+  1052→            <div className="space-y-2">
+  1053→              <Label>عنوان الاستلام</Label>
+  1054→              <div className="relative">
+  1055→                <MapPin className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+  1056→                <Input value={pickupAddress} onChange={(e) => setPickupAddress(e.target.value)} className="pr-10" required />
+  1057→              </div>
+  1058→            </div>
+  1059→            <div className="space-y-2">
+  1060→              <Label>عنوان التوصيل</Label>
+  1061→              <div className="relative">
+  1062→                <MapPin className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+  1063→                <Input
+  1064→                  value={deliveryAddress}
+  1065→                  onChange={(e) => setDeliveryAddress(e.target.value)}
+  1066→                  placeholder="عنوان التوصيل..."
+  1067→                  className="pr-10"
+  1068→                  required
+  1069→                />
+  1070→              </div>
+  1071→            </div>
+  1072→            <div className="space-y-2">
+  1073→              <Label>رسوم التوصيل (ج.م)</Label>
+  1074→              <div className="relative">
+  1075→                <DollarSign className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+  1076→                <Input
+  1077→                  type="number"
+  1078→                  value={deliveryFee}
+  1079→                  onChange={(e) => setDeliveryFee(e.target.value)}
+  1080→                  placeholder="0"
+  1081→                  className="pr-10"
+  1082→                />
+  1083→              </div>
+  1084→            </div>
+  1085→            <Button
+  1086→              type="submit"
+  1087→              className="w-full bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+  1088→              disabled={loading}
+  1089→            >
+  1090→              {loading ? 'جاري إنشاء الطلب...' : 'إنشاء الطلب'}
+  1091→            </Button>
+  1092→          </form>
+  1093→        </CardContent>
+  1094→      </Card>
+  1095→    </div>
+  1096→  );
+  1097→}
+  1098→
+  1099→// ============== SHOP ORDERS ==============
+  1100→function ShopOrders() {
+  1101→  const { user } = useAppStore();
+  1102→  const { toast } = useToast();
+  1103→  const [orders, setOrders] = useState<Order[]>([]);
+  1104→  const [loading, setLoading] = useState(true);
+  1105→  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  1106→
+  1107→  const loadOrders = useCallback(async () => {
+  1108→    if (!user) return;
+  1109→    const shopsData = await api.get('/api/shops');
+  1110→    if (shopsData.shops) {
+  1111→      const shopIds = shopsData.shops.filter((s: Shop) => s.owner?.id === user.id).map((s: Shop) => s.id);
+  1112→      const ordersData = await api.get('/api/orders');
+  1113→      if (ordersData.orders) {
+  1114→        setOrders(ordersData.orders.filter((o: Order) => shopIds.includes(o.shopId)));
+  1115→      }
+  1116→    }
+  1117→    setLoading(false);
+  1118→  }, [user]);
+  1119→
+  1120→  useEffect(() => {
+  1121→    loadOrders();
+  1122→  }, [loadOrders]);
+  1123→
+  1124→  const handleOfferAction = async (offerId: string, action: 'ACCEPTED' | 'REJECTED') => {
+  1125→    const data = await api.patch(`/api/offers/${offerId}`, { status: action });
+  1126→    if (data.error) {
+  1127→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+  1128→    } else {
+  1129→      toast({ title: 'تم!', description: action === 'ACCEPTED' ? 'تم قبول العرض' : 'تم رفض العرض' });
+  1130→      loadOrders();
+  1131→      setSelectedOrder(null);
+  1132→    }
+  1133→  };
+  1134→
+  1135→  const updateOrderStatus = async (orderId: string, status: string) => {
+  1136→    await api.patch(`/api/orders/${orderId}`, { status });
+  1137→    loadOrders();
+  1138→  };
+  1139→
+  1140→  return (
+  1141→    <div className="space-y-6">
+  1142→      <div>
+  1143→        <h2 className="text-2xl font-bold text-gray-900">طلباتي</h2>
+  1144→        <p className="text-gray-500 mt-1">متابعة الطلبات والعروض</p>
+  1145→      </div>
+  1146→
+  1147→      {loading ? (
+  1148→        <div className="space-y-3">
+  1149→          {[1, 2, 3].map((i) => (
+  1150→            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+  1151→          ))}
+  1152→        </div>
+  1153→      ) : orders.length === 0 ? (
+  1154→        <Card className="border-0 shadow-md">
+  1155→          <CardContent className="py-12 text-center">
+  1156→            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+  1157→            <p className="text-gray-400">مفيش طلبات لسه</p>
+  1158→            <p className="text-sm text-gray-300 mt-1">اعمل طلب جديد من القايمة</p>
+  1159→          </CardContent>
+  1160→        </Card>
+  1161→      ) : (
+  1162→        <div className="space-y-3">
+  1163→          {orders.map((order) => (
+  1164→            <Card key={order.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+  1165→              <CardContent className="p-4">
+  1166→                <div className="flex items-start justify-between mb-3">
+  1167→                  <div>
+  1168→                    <p className="font-medium">{order.description}</p>
+  1169→                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+  1170→                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</span>
+  1171→                      <span className="font-bold text-emerald-600">{order.deliveryFee} ج.م</span>
+  1172→                    </div>
+  1173→                  </div>
+  1174→                  <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
+  1175→                </div>
+  1176→
+  1177→                {/* Show offers for PENDING/OFFERED orders */}
+  1178→                {['PENDING', 'OFFERED'].includes(order.status) && order.offers && order.offers.length > 0 && (
+  1179→                  <div className="mt-3 pt-3 border-t">
+  1180→                    <p className="text-sm font-medium mb-2 flex items-center gap-1">
+  1181→                      <CircleDot className="w-3.5 h-3.5 text-blue-500" />
+  1182→                      {order.offers.length} عرض من الدليفري
+  1183→                    </p>
+  1184→                    <div className="space-y-2 max-h-40 overflow-y-auto">
+  1185→                      {order.offers.map((offer) => (
+  1186→                        <div key={offer.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+  1187→                          <div className="flex items-center gap-2">
+  1188→                            <Truck className="w-4 h-4 text-gray-400" />
+  1189→                            <span className="text-sm">{offer.driver?.name}</span>
+  1190→                          </div>
+  1191→                          <div className="flex items-center gap-2">
+  1192→                            <span className="text-sm font-bold text-emerald-600">{offer.price} ج.م</span>
+  1193→                            {offer.status === 'PENDING' && (
+  1194→                              <div className="flex gap-1">
+  1195→                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700" onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}>
+  1196→                                  <CheckCircle className="w-3 h-3 ml-1" /> قبول
+  1197→                                </Button>
+  1198→                                <Button size="sm" variant="outline" className="h-7 text-xs text-red-600 border-red-200" onClick={() => handleOfferAction(offer.id, 'REJECTED')}>
+  1199→                                  <XCircle className="w-3 h-3 ml-1" /> رفض
+  1200→                                </Button>
+  1201→                              </div>
+  1202→                            )}
+  1203→                            {offer.status === 'ACCEPTED' && <Badge className="bg-emerald-100 text-emerald-700 text-xs">مقبول</Badge>}
+  1204→                            {offer.status === 'REJECTED' && <Badge className="bg-red-100 text-red-700 text-xs">مرفوض</Badge>}
+  1205→                          </div>
+  1206→                        </div>
+  1207→                      ))}
+  1208→                    </div>
+  1209→                  </div>
+  1210→                )}
+  1211→
+  1212→                {/* Status update buttons */}
+  1213→                {order.status === 'ACCEPTED' && (
+  1214→                  <div className="mt-3 pt-3 border-t flex justify-end">
+  1215→                    <Button size="sm" variant="outline" className="text-xs" onClick={() => updateOrderStatus(order.id, 'PICKED_UP')}>
+  1216→                      تأكيد الاستلام من المحل
+  1217→                    </Button>
+  1218→                  </div>
+  1219→                )}
+  1220→                {order.status === 'PICKED_UP' && (
+  1221→                  <div className="mt-3 pt-3 border-t flex justify-end">
+  1222→                    <Button size="sm" className="text-xs bg-emerald-600 hover:bg-emerald-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+  1223→                      تأكيد التوصيل
+  1224→                    </Button>
+  1225→                  </div>
+  1226→                )}
+  1227→
+  1228→                {order.acceptedDriver && ['ACCEPTED', 'PICKED_UP'].includes(order.status) && (
+  1229→                  <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600">
+  1230→                    <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name} - {order.acceptedDriver.phone}
+  1231→                  </div>
+  1232→                )}
+  1233→              </CardContent>
+  1234→            </Card>
+  1235→          ))}
+  1236→        </div>
+  1237→      )}
+  1238→    </div>
+  1239→  );
+  1240→}
+  1241→
+  1242→// ============== DRIVER SIDEBAR ==============
+  1243→function DriverSidebar() {
+  1244→  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+  1245→
+  1246→  const menuItems = [
+  1247→    { id: 'driver-dashboard', label: 'الرئيسية', icon: Home },
+  1248→    { id: 'driver-available', label: 'الطلبات المتاحة', icon: Package },
+  1249→    { id: 'driver-my-offers', label: 'عروضي', icon: ClipboardList },
+  1250→    { id: 'driver-my-deliveries', label: 'توصيلاتي', icon: Truck },
+  1251→    { id: 'driver-points', label: 'النقاط', icon: Coins },
+  1252→  ];
+  1253→
+  1254→  return (
+  1255→    <>
+  1256→      {sidebarOpen && (
+  1257→        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+  1258→      )}
+  1259→      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+  1260→        <div className="p-4 border-b flex items-center justify-between">
+  1261→          <div className="flex items-center gap-2">
+  1262→            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+  1263→              <Truck className="w-4 h-4 text-white" />
+  1264→            </div>
+  1265→            <span className="font-bold text-lg">دليفري</span>
+  1266→          </div>
+  1267→          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+  1268→            <X className="w-4 h-4" />
+  1269→          </Button>
+  1270→        </div>
+  1271→        <div className="p-4 bg-emerald-50 m-3 rounded-lg">
+  1272→          <p className="font-medium text-sm text-emerald-900">{user?.name}</p>
+  1273→          <div className="flex items-center gap-2 mt-1">
+  1274→            <Coins className="w-3.5 h-3.5 text-emerald-600" />
+  1275→            <span className="text-sm text-emerald-700 font-bold">{user?.points} نقطة</span>
+  1276→          </div>
+  1277→        </div>
+  1278→        <nav className="p-3 space-y-1">
+  1279→          {menuItems.map((item) => (
+  1280→            <button
+  1281→              key={item.id}
+  1282→              onClick={() => setCurrentView(item.id as typeof currentView)}
+  1283→              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+  1284→                currentView === item.id ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50'
+  1285→              }`}
+  1286→            >
+  1287→              <item.icon className="w-4 h-4" />
+  1288→              {item.label}
+  1289→            </button>
+  1290→          ))}
+  1291→        </nav>
+  1292→        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
+  1293→          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
+  1294→            <LogOut className="w-4 h-4" />
+  1295→            تسجيل خروج
+  1296→          </Button>
+  1297→        </div>
+  1298→      </aside>
+  1299→    </>
+  1300→  );
+  1301→}
+  1302→
+  1303→// ============== DRIVER DASHBOARD ==============
+  1304→function DriverDashboard() {
+  1305→  const { user, setCurrentView } = useAppStore();
+  1306→  const [availableCount, setAvailableCount] = useState(0);
+  1307→  const [myActiveDeliveries, setMyActiveDeliveries] = useState<Order[]>([]);
+  1308→  const [loading, setLoading] = useState(true);
+  1309→
+  1310→  useEffect(() => {
+  1311→    if (!user) return;
+  1312→    Promise.all([
+  1313→      api.get(`/api/orders?driverId=${user.id}&status=AVAILABLE`),
+  1314→      api.get(`/api/orders?driverId=${user.id}&status=ACCEPTED`),
+  1315→    ]).then(([availableData, activeData]) => {
+  1316→      setAvailableCount(availableData.orders?.length || 0);
+  1317→      setMyActiveDeliveries(activeData.orders?.filter((o: Order) => o.acceptedDriverId === user.id) || []);
+  1318→      setLoading(false);
+  1319→    });
+  1320→  }, [user]);
+  1321→
+  1322→  return (
+  1323→    <div className="space-y-6">
+  1324→      <div>
+  1325→        <h2 className="text-2xl font-bold text-gray-900">أهلاً يا {user?.name} 👋</h2>
+  1326→        <p className="text-gray-500 mt-1">لوحة تحكم الدليفري</p>
+  1327→      </div>
+  1328→
+  1329→      <div className="grid grid-cols-2 gap-3">
+  1330→        <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+  1331→          <CardContent className="p-4 text-center">
+  1332→            <Coins className="w-8 h-8 mx-auto mb-2 opacity-80" />
+  1333→            <p className="text-3xl font-bold">{user?.points}</p>
+  1334→            <p className="text-sm opacity-80">نقطة</p>
+  1335→          </CardContent>
+  1336→        </Card>
+  1337→        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500 to-indigo-600 text-white cursor-pointer" onClick={() => setCurrentView('driver-available')}>
+  1338→          <CardContent className="p-4 text-center">
+  1339→            <Package className="w-8 h-8 mx-auto mb-2 opacity-80" />
+  1340→            <p className="text-3xl font-bold">{availableCount}</p>
+  1341→            <p className="text-sm opacity-80">طلب متاح</p>
+  1342→          </CardContent>
+  1343→        </Card>
+  1344→      </div>
+  1345→
+  1346→      <Card className="border-0 shadow-md">
+  1347→        <CardHeader className="pb-3">
+  1348→          <CardTitle className="text-lg flex items-center gap-2">
+  1349→            <Truck className="w-5 h-5 text-emerald-600" />
+  1350→            التوصيلات النشطة
+  1351→          </CardTitle>
+  1352→        </CardHeader>
+  1353→        <CardContent>
+  1354→          {loading ? (
+  1355→            <div className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+  1356→          ) : myActiveDeliveries.length === 0 ? (
+  1357→            <p className="text-center text-gray-400 py-4">مفيش توصيلات نشطة</p>
+  1358→          ) : (
+  1359→            <div className="space-y-2">
+  1360→              {myActiveDeliveries.map((order) => (
+  1361→                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+  1362→                  <div>
+  1363→                    <p className="font-medium text-sm">{order.shop?.name}</p>
+  1364→                    <p className="text-xs text-gray-500">{order.deliveryAddress}</p>
+  1365→                  </div>
+  1366→                  <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
+  1367→                </div>
+  1368→              ))}
+  1369→            </div>
+  1370→          )}
+  1371→        </CardContent>
+  1372→      </Card>
+  1373→
+  1374→      <div className="grid grid-cols-2 gap-3">
+  1375→        <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-points')}>
+  1376→          <Coins className="w-5 h-5 text-emerald-600" />
+  1377→          <span className="text-sm">شراء نقاط</span>
+  1378→        </Button>
+  1379→        <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-available')}>
+  1380→          <Package className="w-5 h-5 text-blue-600" />
+  1381→          <span className="text-sm">الطلبات المتاحة</span>
+  1382→        </Button>
+  1383→      </div>
+  1384→    </div>
+  1385→  );
+  1386→}
+  1387→
+  1388→// ============== DRIVER AVAILABLE ORDERS ==============
+  1389→function DriverAvailableOrders() {
+  1390→  const { user } = useAppStore();
+  1391→  const { toast } = useToast();
+  1392→  const [orders, setOrders] = useState<Order[]>([]);
+  1393→  const [loading, setLoading] = useState(true);
+  1394→  const [offerPrice, setOfferPrice] = useState<Record<string, string>>({});
+  1395→  const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
+  1396→
+  1397→  const loadOrders = useCallback(async () => {
+  1398→    if (!user) return;
+  1399→    const data = await api.get(`/api/orders?driverId=${user.id}&status=AVAILABLE`);
+  1400→    if (data.orders) setOrders(data.orders);
+  1401→    setLoading(false);
+  1402→  }, [user]);
+  1403→
+  1404→  useEffect(() => {
+  1405→    loadOrders();
+  1406→  }, [loadOrders]);
+  1407→
+  1408→  const handleOffer = async (orderId: string) => {
+  1409→    if (!user) return;
+  1410→    const price = parseFloat(offerPrice[orderId] || '0');
+  1411→    if (!price || price <= 0) {
+  1412→      toast({ title: 'خطأ', description: 'لازم تحط سعر للعرض', variant: 'destructive' });
+  1413→      return;
+  1414→    }
+  1415→    if (user.points < 1) {
+  1416→      toast({ title: 'نقاط مش كافية', description: 'اشتري نقاط الأول عشان تقدر تعمل عرض', variant: 'destructive' });
+  1417→      return;
+  1418→    }
+  1419→
+  1420→    setSubmitting((prev) => ({ ...prev, [orderId]: true }));
+  1421→    const data = await api.post('/api/offers', { orderId, driverId: user.id, price });
+  1422→    if (data.error) {
+  1423→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+  1424→    } else {
+  1425→      toast({ title: 'تم!', description: 'تم تقديم العرض بنجاح. استنيت رد المحل.' });
+  1426→      setOfferPrice((prev) => ({ ...prev, [orderId]: '' }));
+  1427→      loadOrders();
+  1428→      // Update user points in store
+  1429→      const updatedUser = { ...user, points: user.points - 1 };
+  1430→      useAppStore.getState().setUser(updatedUser);
+  1431→    }
+  1432→    setSubmitting((prev) => ({ ...prev, [orderId]: false }));
+  1433→  };
+  1434→
+  1435→  return (
+  1436→    <div className="space-y-6">
+  1437→      <div className="flex items-center justify-between">
+  1438→        <div>
+  1439→          <h2 className="text-2xl font-bold text-gray-900">الطلبات المتاحة</h2>
+  1440→          <p className="text-gray-500 mt-1">اطلب على التوصيلات اللي تعجبك</p>
+  1441→        </div>
+  1442→        <div className="flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-full">
+  1443→          <Coins className="w-4 h-4 text-emerald-600" />
+  1444→          <span className="text-sm font-bold text-emerald-700">{user?.points}</span>
+  1445→        </div>
+  1446→      </div>
+  1447→
+  1448→      {loading ? (
+  1449→        <div className="space-y-3">
+  1450→          {[1, 2, 3].map((i) => (
+  1451→            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+  1452→          ))}
+  1453→        </div>
+  1454→      ) : orders.length === 0 ? (
+  1455→        <Card className="border-0 shadow-md">
+  1456→          <CardContent className="py-12 text-center">
+  1457→            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+  1458→            <p className="text-gray-400">مفيش طلبات متاحة دلوقتي</p>
+  1459→            <p className="text-sm text-gray-300 mt-1">فضل متابع! الطلبات بتتضاف كل وقت</p>
+  1460→          </CardContent>
+  1461→        </Card>
+  1462→      ) : (
+  1463→        <div className="space-y-3">
+  1464→          {orders.map((order) => (
+  1465→            <Card key={order.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+  1466→              <CardContent className="p-4 space-y-3">
+  1467→                <div className="flex items-start justify-between">
+  1468→                  <div className="flex items-center gap-2">
+  1469→                    <span className="text-xl">{shopTypeIcons[order.shop?.type] || '🏪'}</span>
+  1470→                    <div>
+  1471→                      <p className="font-medium">{order.shop?.name}</p>
+  1472→                      <p className="text-xs text-gray-500">{shopTypeLabels[order.shop?.type] || 'محل'}</p>
+  1473→                    </div>
+  1474→                  </div>
+  1475→                  <span className="text-sm font-bold text-emerald-600">{order.deliveryFee} ج.م</span>
+  1476→                </div>
+  1477→                <p className="text-sm text-gray-700">{order.description}</p>
+  1478→                <div className="space-y-1 text-xs text-gray-400">
+  1479→                  <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> من: {order.pickupAddress}</p>
+  1480→                  <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</p>
+  1481→                </div>
+  1482→                {order.offers && order.offers.length > 0 && (
+  1483→                  <p className="text-xs text-blue-600">{order.offers.length} عرض تايه</p>
+  1484→                )}
+  1485→                <div className="flex items-center gap-2 pt-2 border-t">
+  1486→                  <div className="relative flex-1">
+  1487→                    <span className="absolute right-3 top-2.5 text-xs text-gray-400">ج.م</span>
+  1488→                    <Input
+  1489→                      type="number"
+  1490→                      placeholder="سعرك"
+  1491→                      value={offerPrice[order.id] || ''}
+  1492→                      onChange={(e) => setOfferPrice((prev) => ({ ...prev, [order.id]: e.target.value }))}
+  1493→                      className="pr-10 h-9"
+  1494→                    />
+  1495→                  </div>
+  1496→                  <Button
+  1497→                    className="bg-emerald-600 hover:bg-emerald-700 gap-1 h-9"
+  1498→                    disabled={submitting[order.id] || user?.points < 1}
+  1499→                    onClick={() => handleOffer(order.id)}
+  1500→                  >
+  1501→                    {submitting[order.id] ? (
+  1502→                      <span className="animate-spin">⏳</span>
+  1503→                    ) : (
+  1504→                      <><Send className="w-3.5 h-3.5" /> عرض</>
+  1505→                    )}
+  1506→                  </Button>
+  1507→                </div>
+  1508→                {user?.points < 1 && (
+  1509→                  <p className="text-xs text-red-500 text-center">معندكش نقاط كافية. اشتري نقاط الأول!</p>
+  1510→                )}
+  1511→              </CardContent>
+  1512→            </Card>
+  1513→          ))}
+  1514→        </div>
+  1515→      )}
+  1516→    </div>
+  1517→  );
+  1518→}
+  1519→
+  1520→// ============== DRIVER MY OFFERS ==============
+  1521→function DriverMyOffers() {
+  1522→  const { user } = useAppStore();
+  1523→  const [offers, setOffers] = useState<DeliveryOffer[]>([]);
+  1524→  const [loading, setLoading] = useState(true);
+  1525→
+  1526→  useEffect(() => {
+  1527→    if (!user) return;
+  1528→    api.get(`/api/offers?driverId=${user.id}`).then((data) => {
+  1529→      if (data.offers) setOffers(data.offers);
+  1530→      setLoading(false);
+  1531→    });
+  1532→  }, [user]);
+  1533→
+  1534→  const offerStatusColors: Record<string, string> = {
+  1535→    PENDING: 'bg-yellow-100 text-yellow-800',
+  1536→    ACCEPTED: 'bg-emerald-100 text-emerald-800',
+  1537→    REJECTED: 'bg-red-100 text-red-800',
+  1538→  };
+  1539→  const offerStatusLabels: Record<string, string> = {
+  1540→    PENDING: 'في الانتظار',
+  1541→    ACCEPTED: 'مقبول 🎉',
+  1542→    REJECTED: 'مرفوض',
+  1543→  };
+  1544→
+  1545→  return (
+  1546→    <div className="space-y-6">
+  1547→      <div>
+  1548→        <h2 className="text-2xl font-bold text-gray-900">عروضي</h2>
+  1549→        <p className="text-gray-500 mt-1">كل العروض اللي عملتها</p>
+  1550→      </div>
+  1551→
+  1552→      {loading ? (
+  1553→        <div className="space-y-3">
+  1554→          {[1, 2, 3].map((i) => (
+  1555→            <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+  1556→          ))}
+  1557→        </div>
+  1558→      ) : offers.length === 0 ? (
+  1559→        <Card className="border-0 shadow-md">
+  1560→          <CardContent className="py-12 text-center">
+  1561→            <ClipboardList className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+  1562→            <p className="text-gray-400">معملتش عروض لسه</p>
+  1563→          </CardContent>
+  1564→        </Card>
+  1565→      ) : (
+  1566→        <div className="space-y-3">
+  1567→          {offers.map((offer) => (
+  1568→            <Card key={offer.id} className="border-0 shadow-sm">
+  1569→              <CardContent className="p-4 flex items-center justify-between">
+  1570→                <div>
+  1571→                  <p className="font-medium text-sm">{offer.order?.description || 'طلب'}</p>
+  1572→                  <p className="text-xs text-gray-500 mt-0.5">
+  1573→                    {offer.order?.shop?.name} - {offer.order?.shop?.address}
+  1574→                  </p>
+  1575→                  <p className="text-sm font-bold text-emerald-600 mt-1">عرضك: {offer.price} ج.م</p>
+  1576→                </div>
+  1577→                <Badge className={offerStatusColors[offer.status]}>
+  1578→                  {offerStatusLabels[offer.status]}
+  1579→                </Badge>
+  1580→              </CardContent>
+  1581→            </Card>
+  1582→          ))}
+  1583→        </div>
+  1584→      )}
+  1585→    </div>
+  1586→  );
+  1587→}
+  1588→
+  1589→// ============== DRIVER MY DELIVERIES ==============
+  1590→function DriverMyDeliveries() {
+  1591→  const { user } = useAppStore();
+  1592→  const { toast } = useToast();
+  1593→  const [orders, setOrders] = useState<Order[]>([]);
+  1594→  const [loading, setLoading] = useState(true);
+  1595→
+  1596→  const loadOrders = useCallback(async () => {
+  1597→    if (!user) return;
+  1598→    const data = await api.get('/api/orders');
+  1599→    if (data.orders) {
+  1600→      const myOrders = data.orders.filter((o: Order) => o.acceptedDriverId === user.id);
+  1601→      setOrders(myOrders);
+  1602→    }
+  1603→    setLoading(false);
+  1604→  }, [user]);
+  1605→
+  1606→  useEffect(() => {
+  1607→    loadOrders();
+  1608→  }, [loadOrders]);
+  1609→
+  1610→  const updateStatus = async (orderId: string, status: string) => {
+  1611→    await api.patch(`/api/orders/${orderId}`, { status });
+  1612→    toast({ title: 'تم!', description: 'تم تحديث حالة الطلب' });
+  1613→    loadOrders();
+  1614→  };
+  1615→
+  1616→  return (
+  1617→    <div className="space-y-6">
+  1618→      <div>
+  1619→        <h2 className="text-2xl font-bold text-gray-900">توصيلاتي</h2>
+  1620→        <p className="text-gray-500 mt-1">التوصيلات اللي اتعينت عليك</p>
+  1621→      </div>
+  1622→
+  1623→      {loading ? (
+  1624→        <div className="space-y-3">
+  1625→          {[1, 2, 3].map((i) => (
+  1626→            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+  1627→          ))}
+  1628→        </div>
+  1629→      ) : orders.length === 0 ? (
+  1630→        <Card className="border-0 shadow-md">
+  1631→          <CardContent className="py-12 text-center">
+  1632→            <Truck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+  1633→            <p className="text-gray-400">مفيش توصيلات لسه</p>
+  1634→          </CardContent>
+  1635→        </Card>
+  1636→      ) : (
+  1637→        <div className="space-y-3">
+  1638→          {orders.map((order) => (
+  1639→            <Card key={order.id} className="border-0 shadow-sm">
+  1640→              <CardContent className="p-4 space-y-3">
+  1641→                <div className="flex items-start justify-between">
+  1642→                  <div>
+  1643→                    <div className="flex items-center gap-2">
+  1644→                      <span>{shopTypeIcons[order.shop?.type] || '🏪'}</span>
+  1645→                      <span className="font-medium">{order.shop?.name}</span>
+  1646→                    </div>
+  1647→                    <p className="text-sm text-gray-600 mt-1">{order.description}</p>
+  1648→                    <div className="mt-2 space-y-1 text-xs text-gray-400">
+  1649→                      <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> من: {order.pickupAddress}</p>
+  1650→                      <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</p>
+  1651→                    </div>
+  1652→                  </div>
+  1653→                  <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
+  1654→                </div>
+  1655→                <div className="flex items-center justify-between pt-2 border-t">
+  1656→                  <span className="font-bold text-emerald-600">{order.deliveryFee} ج.م</span>
+  1657→                  <div className="flex gap-2">
+  1658→                    {order.status === 'ACCEPTED' && (
+  1659→                      <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={() => updateStatus(order.id, 'PICKED_UP')}>
+  1660→                        وصلت المحل
+  1661→                      </Button>
+  1662→                    )}
+  1663→                    {order.status === 'PICKED_UP' && (
+  1664→                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => updateStatus(order.id, 'DELIVERED')}>
+  1665→                        تم التوصيل ✅
+  1666→                      </Button>
+  1667→                    )}
+  1668→                  </div>
+  1669→                </div>
+  1670→              </CardContent>
+  1671→            </Card>
+  1672→          ))}
+  1673→        </div>
+  1674→      )}
+  1675→    </div>
+  1676→  );
+  1677→}
+  1678→
+  1679→// ============== DRIVER POINTS ==============
+  1680→function DriverPoints() {
+  1681→  const { user, setUser } = useAppStore();
+  1682→  const { toast } = useToast();
+  1683→  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
+  1684→  const [currentPoints, setCurrentPoints] = useState(user?.points || 0);
+  1685→  const [loading, setLoading] = useState(true);
+  1686→  const [purchaseAmount, setPurchaseAmount] = useState('');
+  1687→  const [purchasing, setPurchasing] = useState(false);
+  1688→
+  1689→  useEffect(() => {
+  1690→    if (!user) return;
+  1691→    api.get(`/api/points?userId=${user.id}`).then((data) => {
+  1692→      if (data.transactions) setTransactions(data.transactions);
+  1693→      if (data.currentPoints !== undefined) setCurrentPoints(data.currentPoints);
+  1694→      setLoading(false);
+  1695→    });
+  1696→  }, [user]);
+  1697→
+  1698→  const handlePurchase = async () => {
+  1699→    if (!user) return;
+  1700→    const amount = parseInt(purchaseAmount);
+  1701→    if (!amount || amount <= 0) {
+  1702→      toast({ title: 'خطأ', description: 'اختر عدد النقاط', variant: 'destructive' });
+  1703→      return;
+  1704→    }
+  1705→    setPurchasing(true);
+  1706→    const data = await api.post('/api/points', { userId: user.id, amount });
+  1707→    if (data.error) {
+  1708→      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+  1709→    } else {
+  1710→      toast({ title: 'تم!', description: `تم شراء ${amount} نقطة بنجاح` });
+  1711→      setCurrentPoints(data.user?.points || currentPoints + amount);
+  1712→      setUser({ ...user, points: data.user?.points || currentPoints + amount });
+  1713→      setPurchaseAmount('');
+  1714→      // Reload transactions
+  1715→      api.get(`/api/points?userId=${user.id}`).then((d) => {
+  1716→        if (d.transactions) setTransactions(d.transactions);
+  1717→      });
+  1718→    }
+  1719→    setPurchasing(false);
+  1720→  };
+  1721→
+  1722→  const typeLabels: Record<string, string> = {
+  1723→    PURCHASE: 'شراء',
+  1724→    USAGE: 'استخدام',
+  1725→    EARNING: 'كسب',
+  1726→  };
+  1727→  const typeColors: Record<string, string> = {
+  1728→    PURCHASE: 'text-blue-600',
+  1729→    USAGE: 'text-red-600',
+  1730→    EARNING: 'text-emerald-600',
+  1731→  };
+  1732→
+  1733→  return (
+  1734→    <div className="space-y-6">
+  1735→      <div>
+  1736→        <h2 className="text-2xl font-bold text-gray-900">النقاط</h2>
+  1737→        <p className="text-gray-500 mt-1">إدارة النقاط والشراء</p>
+  1738→      </div>
+  1739→
+  1740→      <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+  1741→        <CardContent className="p-6 text-center">
+  1742→          <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
+  1743→          <p className="text-4xl font-bold">{currentPoints}</p>
+  1744→          <p className="text-lg opacity-80">نقطة</p>
+  1745→          <p className="text-sm opacity-60 mt-2">كل عرض على طلب بيخصم نقطة واحدة</p>
+  1746→        </CardContent>
+  1747→      </Card>
+  1748→
+  1749→      <Card className="border-0 shadow-md">
+  1750→        <CardHeader className="pb-3">
+  1751→          <CardTitle className="text-lg flex items-center gap-2">
+  1752→            <ShoppingCart className="w-5 h-5 text-emerald-600" />
+  1753→            شراء نقاط
+  1754→          </CardTitle>
+  1755→        </CardHeader>
+  1756→        <CardContent>
+  1757→          <div className="grid grid-cols-4 gap-2 mb-4">
+  1758→            {[5, 10, 25, 50].map((amount) => (
+  1759→              <Button
+  1760→                key={amount}
+  1761→                variant={purchaseAmount === String(amount) ? 'default' : 'outline'}
+  1762→                className={purchaseAmount === String(amount) ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+  1763→                onClick={() => setPurchaseAmount(String(amount))}
+  1764→              >
+  1765→                {amount} نقطة
+  1766→              </Button>
+  1767→            ))}
+  1768→          </div>
+  1769→          <div className="flex gap-2">
+  1770→            <Input
+  1771→              type="number"
+  1772→              placeholder="عدد نقاط مخصص"
+  1773→              value={purchaseAmount}
+  1774→              onChange={(e) => setPurchaseAmount(e.target.value)}
+  1775→            />
+  1776→            <Button
+  1777→              className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
+  1778→              onClick={handlePurchase}
+  1779→              disabled={purchasing || !purchaseAmount}
+  1780→            >
+  1781→              {purchasing ? '⏳' : 'شراء'}
+  1782→            </Button>
+  1783→          </div>
+  1784→        </CardContent>
+  1785→      </Card>
+  1786→
+  1787→      <Card className="border-0 shadow-md">
+  1788→        <CardHeader className="pb-3">
+  1789→          <CardTitle className="text-lg">سجل النقاط</CardTitle>
+  1790→        </CardHeader>
+  1791→        <CardContent>
+  1792→          {loading ? (
+  1793→            <div className="space-y-2">
+  1794→              {[1, 2, 3].map((i) => (
+  1795→                <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+  1796→              ))}
+  1797→            </div>
+  1798→          ) : transactions.length === 0 ? (
+  1799→            <p className="text-center text-gray-400 py-6">مفيش عمليات على النقاط لسه</p>
+  1800→          ) : (
+  1801→            <ScrollArea className="max-h-96">
+  1802→              <div className="space-y-2">
+  1803→                {transactions.map((tx) => (
+  1804→                  <div key={tx.id} className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+  1805→                    <div>
+  1806→                      <p className="text-sm">{tx.description}</p>
+  1807→                      <p className="text-xs text-gray-400">{new Date(tx.createdAt).toLocaleDateString('ar-EG')}</p>
+  1808→                    </div>
+  1809→                    <span className={`font-bold ${typeColors[tx.type]}`}>
+  1810→                      {tx.amount > 0 ? '+' : ''}{tx.amount}
+  1811→                    </span>
+  1812→                  </div>
+  1813→                ))}
+  1814→              </div>
+  1815→            </ScrollArea>
+  1816→          )}
+  1817→        </CardContent>
+  1818→      </Card>
+  1819→    </div>
+  1820→  );
+  1821→}
+  1822→
+  1823→// ============== MAIN APP ==============
+  1824→function AppContent() {
+  1825→  const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
+  1826→
+  1827→  if (!user) {
+  1828→    if (currentView === 'register') return <RegisterView />;
+  1829→    return <LoginView />;
+  1830→  }
+  1831→
+  1832→  const isAdmin = user.role === 'ADMIN';
+  1833→  const isShop = user.role === 'SHOP';
+  1834→  const isDriver = user.role === 'DRIVER';
+  1835→
+  1836→  const Sidebar = isAdmin ? AdminSidebar : isShop ? ShopSidebar : DriverSidebar;
+  1837→
+  1838→  const renderView = () => {
+  1839→    switch (currentView) {
+  1840→      // Admin views
+  1841→      case 'admin-dashboard': return <AdminDashboard />;
+  1842→      case 'admin-shops': return <AdminShops />;
+  1843→      case 'admin-users': return <AdminUsers />;
+  1844→      case 'admin-orders': return <AdminOrders />;
+  1845→      // Shop views
+  1846→      case 'shop-dashboard': return <ShopDashboard />;
+  1847→      case 'shop-create-order': return <ShopCreateOrder />;
+  1848→      case 'shop-orders': return <ShopOrders />;
+  1849→      // Driver views
+  1850→      case 'driver-dashboard': return <DriverDashboard />;
+  1851→      case 'driver-available': return <DriverAvailableOrders />;
+  1852→      case 'driver-my-offers': return <DriverMyOffers />;
+  1853→      case 'driver-my-deliveries': return <DriverMyDeliveries />;
+  1854→      case 'driver-points': return <DriverPoints />;
+  1855→      default: return <AdminDashboard />;
+  1856→    }
+  1857→  };
+  1858→
+  1859→  return (
+  1860→    <div className="min-h-screen bg-gray-50">
+  1861→      <Sidebar />
+  1862→      {/* Mobile header */}
+  1863→      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-30 px-4 py-3 flex items-center justify-between">
+  1864→        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+  1865→          <Menu className="w-5 h-5" />
+  1866→        </Button>
+  1867→        <div className="flex items-center gap-2">
+  1868→          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+  1869→            isAdmin ? 'bg-red-100' : isShop ? 'bg-blue-100' : 'bg-emerald-100'
+  1870→          }`}>
+  1871→            {isAdmin ? <Settings className="w-4 h-4 text-red-600" /> :
+  1872→             isShop ? <Store className="w-4 h-4 text-blue-600" /> :
+  1873→             <Truck className="w-4 h-4 text-emerald-600" />}
+  1874→          </div>
+  1875→          <span className="font-bold text-sm">{user.name}</span>
+  1876→        </div>
+  1877→        <div className="w-10" />
+  1878→      </div>
+  1879→      {/* Main content */}
+  1880→      <main className="lg:mr-64 pt-16 lg:pt-0 p-4 lg:p-6 min-h-screen">
+  1881→        <div className="max-w-4xl mx-auto">
+  1882→          {renderView()}
+  1883→        </div>
+  1884→      </main>
+  1885→    </div>
+  1886→  );
+  1887→}
+  1888→
+  1889→// Missing Send icon import replacement
+  1890→function Send({ className }: { className?: string }) {
+  1891→  return (
+  1892→    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  1893→      <path d="m22 2-7 20-4-9-9-4Z"/>
+  1894→      <path d="M22 2 11 13"/>
+  1895→    </svg>
+  1896→  );
+  1897→}
+  1898→
+  1899→export default function Home() {
+  1900→  return <AppContent />;
+  1901→}
+  1902→
