@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "04:48:11.421\n04:48:11.421  827 packages installed [15.08s]\n04:48:11.445  Detected Next.js version: 16.1.3\n04:48:11.447  Running \"prisma generate && next build\"\n04:48:12.372  Environment variables loaded from .env\n04:48:12.373  Error: Could not find Prisma Schema that is required for this command.\n04:48:12.374  You can either provide it with `--schema` argument,\n04:48:12.374  set it in your Prisma Config file (e.g., `prisma.config.ts`),\n04:48:12.374  set it as `prisma.schema` in your package.json,\n04:48:12.374  or put it into the default location (`./prisma/schema.prisma`, or `./schema.prisma`.\n04:48:12.374  Checked following paths:\n04:48:12.374\n04:48:12.374  schema.prisma: file not found\n04:48:12.375  prisma/schema.prisma: file not found\n04:48:12.375\n04:48:12.375  See also https://pris.ly/d/prisma-schema-location\n04:48:12.397  Error: Command \"prisma generate && next build\" exited with 1",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1782697866,
+  "id": "202606290951017a020182a9c44bd8",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202606290951017a020182a9c44bd8",
+  "usage": {
+    "completion_tokens": 328,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1084,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 1412
+  }
+}
