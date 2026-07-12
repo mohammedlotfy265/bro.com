@@ -1404,17 +1404,9 @@ function ShopOrders() {
                     <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name} - {order.acceptedDriver.phone}
                   </div>
                 )}
-                {order.status === 'DELIVERED' && order.commission > 0 && (
-                  <div className="mt-2 p-2 bg-indigo-50 rounded-lg text-xs space-y-1">
-                    <p className="font-medium text-indigo-800">تم التوصيل - توزيع الرسوم:</p>
-                    <div className="flex justify-between text-amber-700">
-                      <span>عمولة المنصة (10%)</span>
-                      <span className="font-bold">{order.commission?.toFixed(2)} ج.م</span>
-                    </div>
-                    <div className="flex justify-between text-blue-700">
-                      <span>أرباح الدليفري</span>
-                      <span className="font-bold">{((order.deliveryFee || 0) - (order.commission || 0)).toFixed(2)} ج.م</span>
-                    </div>
+                {order.status === 'DELIVERED' && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600">
+                    <CheckCircle className="w-3.5 h-3.5" /> تم التوصيل بنجاح - {order.deliveryFee} ج.م
                   </div>
                 )}
               </CardContent>
