@@ -60,7 +60,7 @@ const statusColors: Record<string, string> = {
   OFFERED: 'bg-blue-100 text-blue-800 border-blue-300',
   ACCEPTED: 'bg-green-100 text-green-800 border-green-300',
   PICKED_UP: 'bg-purple-100 text-purple-800 border-purple-300',
-  DELIVERED: 'bg-rose-100 text-rose-800 border-emerald-300',
+  DELIVERED: 'bg-indigo-100 text-indigo-800 border-emerald-300',
   CANCELLED: 'bg-red-100 text-red-800 border-red-300',
 };
 
@@ -121,18 +121,18 @@ function LoginView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-rose-50/30 to-white bg-dots p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-indigo-50/30 to-white bg-dots p-4 relative overflow-hidden">
       {/* Decorative floating elements */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-rose-300/20 to-pink-300/20 rounded-full blur-3xl animate-morph" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-br from-pink-300/20 to-rose-300/20 rounded-full blur-3xl animate-drift" />
-      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-gradient-to-br from-rose-300/15 to-pink-300/15 rounded-full blur-2xl animate-drift" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-gradient-to-br from-orange-300/15 to-rose-300/15 rounded-full blur-2xl animate-morph" style={{ animationDelay: '4s' }} />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-br from-violet-300/20 to-indigo-300/20 rounded-full blur-3xl animate-drift" />
+      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-gradient-to-br from-indigo-300/15 to-violet-300/15 rounded-full blur-2xl animate-drift" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-gradient-to-br from-amber-300/15 to-violet-300/15 rounded-full blur-2xl animate-morph" style={{ animationDelay: '4s' }} />
 
       <div className="w-full max-w-md relative animate-fade-in">
         <div className="text-center mb-8">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-rose-400/15 rounded-2xl blur-xl animate-pulse-glow" />
-            <div className="w-20 h-20 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg relative animate-scale-in">
+            <div className="absolute inset-0 bg-indigo-400/15 rounded-2xl blur-xl animate-pulse-glow" />
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg relative animate-scale-in">
               <Truck className="w-10 h-10 text-white" />
             </div>
           </div>
@@ -175,7 +175,7 @@ function LoginView() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-l from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800"
+                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
                 disabled={loading}
               >
                 {loading ? 'جاري الدخول...' : 'دخول'}
@@ -186,7 +186,7 @@ function LoginView() {
               <Button
                 variant="link"
                 onClick={() => setCurrentView('register')}
-                className="text-rose-600"
+                className="text-indigo-600"
               >
                 حساب جديد
               </Button>
@@ -226,10 +226,10 @@ function RegisterView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-rose-50/30 to-white bg-dots p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-indigo-50/30 to-white bg-dots p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
             <UserPlus className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">حساب جديد</h1>
@@ -272,14 +272,14 @@ function RegisterView() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-l from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800"
+                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
                 disabled={loading}
               >
                 {loading ? 'جاري التسجيل...' : 'تسجيل'}
               </Button>
             </form>
             <div className="mt-4 text-center">
-              <Button variant="link" onClick={() => setCurrentView('login')} className="text-rose-600">
+              <Button variant="link" onClick={() => setCurrentView('login')} className="text-indigo-600">
                 عندي حساب بالفعل
               </Button>
             </div>
@@ -314,7 +314,7 @@ function AdminSidebar() {
       <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center">
               <Truck className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-lg">دليفري برو</span>
@@ -330,7 +330,7 @@ function AdminSidebar() {
               onClick={() => setCurrentView(item.id as typeof currentView)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 currentView === item.id
-                  ? 'bg-rose-50 text-rose-700'
+                  ? 'bg-indigo-50 text-indigo-700'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -372,8 +372,8 @@ function AdminDashboard() {
     { label: 'الدليفري', value: stats.totalDrivers || 0, icon: Truck, color: 'from-blue-500 to-cyan-600' },
     { label: 'الطلبات', value: stats.totalOrders || 0, icon: Package, color: 'from-orange-500 to-amber-600' },
     { label: 'في الانتظار', value: stats.pendingOrders || 0, icon: Clock, color: 'from-yellow-500 to-orange-500' },
-    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: CheckCircle, color: 'from-rose-500 to-pink-600' },
-    { label: 'إجمالي المستخدمين', value: stats.totalUsers || 0, icon: Users, color: 'from-pink-500 to-rose-600' },
+    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: CheckCircle, color: 'from-indigo-500 to-violet-600' },
+    { label: 'إجمالي المستخدمين', value: stats.totalUsers || 0, icon: Users, color: 'from-violet-500 to-indigo-600' },
   ];
 
   return (
@@ -400,7 +400,7 @@ function AdminDashboard() {
       <Card className="border-0 shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Clock className="w-5 h-5 text-rose-600" />
+            <Clock className="w-5 h-5 text-indigo-600" />
             آخر الطلبات
           </CardTitle>
         </CardHeader>
@@ -502,7 +502,7 @@ function AdminShops() {
         </div>
         <Dialog open={showAdd} onOpenChange={setShowAdd}>
           <DialogTrigger asChild>
-            <Button className="bg-rose-600 hover:bg-rose-700 gap-2">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2">
               <Plus className="w-4 h-4" /> إضافة محل
             </Button>
           </DialogTrigger>
@@ -539,7 +539,7 @@ function AdminShops() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>صاحب المحل</Label>
-                  <Button type="button" variant="link" size="sm" className="text-rose-600" onClick={handleAddShopUser}>
+                  <Button type="button" variant="link" size="sm" className="text-indigo-600" onClick={handleAddShopUser}>
                     إضافة مستخدم جديد
                   </Button>
                 </div>
@@ -552,7 +552,7 @@ function AdminShops() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full bg-rose-600 hover:bg-rose-700">إضافة المحل</Button>
+              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">إضافة المحل</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -578,7 +578,7 @@ function AdminShops() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-2xl">
+                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl">
                       {shopTypeIcons[shop.type] || '🏪'}
                     </div>
                     <div>
@@ -586,7 +586,7 @@ function AdminShops() {
                       <Badge variant="outline" className="mt-1">{shopTypeLabels[shop.type] || shop.type}</Badge>
                     </div>
                   </div>
-                  <Badge className={shop.active ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-500'}>
+                  <Badge className={shop.active ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}>
                     {shop.active ? 'نشط' : 'معلق'}
                   </Badge>
                 </div>
@@ -643,7 +643,7 @@ function AdminUsers() {
   const roleColors: Record<string, string> = {
     ADMIN: 'bg-red-100 text-red-700',
     SHOP: 'bg-blue-100 text-blue-700',
-    DRIVER: 'bg-rose-100 text-rose-700',
+    DRIVER: 'bg-indigo-100 text-indigo-700',
   };
 
   return (
@@ -687,7 +687,7 @@ function AdminUsers() {
                         {roleLabels[user.role]}
                       </Badge>
                       {user.role === 'DRIVER' && (
-                        <span className="text-xs text-rose-600 flex items-center gap-1">
+                        <span className="text-xs text-indigo-600 flex items-center gap-1">
                           <Coins className="w-3 h-3" /> {user.points}
                         </span>
                       )}
@@ -699,7 +699,7 @@ function AdminUsers() {
                     variant={user.active ? 'outline' : 'default'}
                     size="sm"
                     onClick={() => handleToggleActive(user.id, user.active)}
-                    className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-rose-600 hover:bg-rose-700'}
+                    className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700'}
                   >
                     {user.active ? 'تعطيل' : 'تفعيل'}
                   </Button>
@@ -767,7 +767,7 @@ function AdminOrders() {
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</span>
                     </div>
                     {order.acceptedDriver && (
-                      <p className="text-xs text-rose-600 flex items-center gap-1">
+                      <p className="text-xs text-indigo-600 flex items-center gap-1">
                         <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name}
                       </p>
                     )}
@@ -777,7 +777,7 @@ function AdminOrders() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
-                    <span className="text-sm font-bold text-rose-600">{order.deliveryFee} ج.م</span>
+                    <span className="text-sm font-bold text-indigo-600">{order.deliveryFee} ج.م</span>
                     {(order.status === 'ACCEPTED' || order.status === 'PICKED_UP') && (
                       <div className="flex gap-1">
                         {order.status === 'ACCEPTED' && (
@@ -786,7 +786,7 @@ function AdminOrders() {
                           </Button>
                         )}
                         {order.status === 'PICKED_UP' && (
-                          <Button size="sm" className="text-xs h-7 bg-rose-600 hover:bg-rose-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+                          <Button size="sm" className="text-xs h-7 bg-indigo-600 hover:bg-indigo-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
                             تم التوصيل
                           </Button>
                         )}
@@ -1176,7 +1176,7 @@ function ShopOrders() {
                     <p className="font-medium">{order.description}</p>
                     <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> إلى: {order.deliveryAddress}</span>
-                      <span className="font-bold text-rose-600">{order.deliveryFee} ج.م</span>
+                      <span className="font-bold text-indigo-600">{order.deliveryFee} ج.م</span>
                     </div>
                   </div>
                   <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
@@ -1197,10 +1197,10 @@ function ShopOrders() {
                             <span className="text-sm font-medium">{offer.driver?.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-rose-600">{offer.price} ج.م</span>
+                            <span className="text-sm font-bold text-indigo-600">{offer.price} ج.م</span>
                             {offer.status === 'PENDING' && (
                               <div className="flex gap-1">
-                                <Button size="sm" className="h-7 text-xs bg-rose-600 hover:bg-rose-700" onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}>
+                                <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700" onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}>
                                   <CheckCircle className="w-3 h-3 ml-1" /> قبول
                                 </Button>
                                 <Button size="sm" variant="outline" className="h-7 text-xs text-red-600 border-red-200" onClick={() => handleOfferAction(offer.id, 'REJECTED')}>
@@ -1208,7 +1208,7 @@ function ShopOrders() {
                                 </Button>
                               </div>
                             )}
-                            {offer.status === 'ACCEPTED' && <Badge className="bg-rose-100 text-rose-700 text-xs">مقبول ✓</Badge>}
+                            {offer.status === 'ACCEPTED' && <Badge className="bg-indigo-100 text-indigo-700 text-xs">مقبول ✓</Badge>}
                             {offer.status === 'REJECTED' && <Badge className="bg-red-100 text-red-700 text-xs">مرفوض</Badge>}
                           </div>
                         </div>
@@ -1227,20 +1227,20 @@ function ShopOrders() {
                 )}
                 {order.status === 'PICKED_UP' && (
                   <div className="mt-3 pt-3 border-t flex justify-end">
-                    <Button size="sm" className="text-xs bg-rose-600 hover:bg-rose-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+                    <Button size="sm" className="text-xs bg-indigo-600 hover:bg-indigo-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
                       تأكيد التوصيل
                     </Button>
                   </div>
                 )}
 
                 {order.acceptedDriver && ['ACCEPTED', 'PICKED_UP'].includes(order.status) && (
-                  <div className="mt-2 flex items-center gap-2 text-xs text-rose-600">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-indigo-600">
                     <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name} - {order.acceptedDriver.phone}
                   </div>
                 )}
                 {order.status === 'DELIVERED' && order.commission > 0 && (
-                  <div className="mt-2 p-2 bg-rose-50 rounded-lg text-xs space-y-1">
-                    <p className="font-medium text-rose-800">تم التوصيل - توزيع الرسوم:</p>
+                  <div className="mt-2 p-2 bg-indigo-50 rounded-lg text-xs space-y-1">
+                    <p className="font-medium text-indigo-800">تم التوصيل - توزيع الرسوم:</p>
                     <div className="flex justify-between text-amber-700">
                       <span>عمولة المنصة (10%)</span>
                       <span className="font-bold">{order.commission?.toFixed(2)} ج.م</span>
@@ -1289,11 +1289,11 @@ function DriverSidebar() {
             <X className="w-4 h-4" />
           </Button>
         </div>
-        <div className="p-4 bg-rose-50 m-3 rounded-lg">
-          <p className="font-medium text-sm text-rose-900">{user?.name}</p>
+        <div className="p-4 bg-indigo-50 m-3 rounded-lg">
+          <p className="font-medium text-sm text-indigo-900">{user?.name}</p>
           <div className="flex items-center gap-2 mt-1">
-            <Coins className="w-3.5 h-3.5 text-rose-600" />
-            <span className="text-sm text-rose-700 font-bold">{user?.points} نقطة</span>
+            <Coins className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="text-sm text-indigo-700 font-bold">{user?.points} نقطة</span>
           </div>
         </div>
         <nav className="p-3 space-y-1">
@@ -1302,7 +1302,7 @@ function DriverSidebar() {
               key={item.id}
               onClick={() => setCurrentView(item.id as typeof currentView)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                currentView === item.id ? 'bg-rose-50 text-rose-700' : 'text-gray-600 hover:bg-gray-50'
+                currentView === item.id ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -1348,7 +1348,7 @@ function DriverDashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Card className="border-0 shadow-md bg-gradient-to-br from-rose-500 to-pink-600 text-white">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
           <CardContent className="p-4 text-center">
             <Coins className="w-8 h-8 mx-auto mb-2 opacity-80" />
             <p className="text-3xl font-bold">{user?.points}</p>
@@ -1367,7 +1367,7 @@ function DriverDashboard() {
       <Card className="border-0 shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Truck className="w-5 h-5 text-rose-600" />
+            <Truck className="w-5 h-5 text-indigo-600" />
             التوصيلات النشطة
           </CardTitle>
         </CardHeader>
@@ -1394,7 +1394,7 @@ function DriverDashboard() {
 
       <div className="grid grid-cols-2 gap-3">
         <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-points')}>
-          <Coins className="w-5 h-5 text-rose-600" />
+          <Coins className="w-5 h-5 text-indigo-600" />
           <span className="text-sm">شراء نقاط</span>
         </Button>
         <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-available')}>
@@ -1503,9 +1503,9 @@ function DriverAvailableOrders() {
           <h2 className="text-2xl font-bold text-gray-900">الطلبات المتاحة</h2>
           <p className="text-gray-500 mt-1">وافق على سعر المحل أو اعرض سعر تاني</p>
         </div>
-        <div className="flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-full">
-          <Coins className="w-4 h-4 text-rose-600" />
-          <span className="text-sm font-bold text-rose-700">{user?.points}</span>
+        <div className="flex items-center gap-1 bg-indigo-50 px-3 py-1.5 rounded-full">
+          <Coins className="w-4 h-4 text-indigo-600" />
+          <span className="text-sm font-bold text-indigo-700">{user?.points}</span>
         </div>
       </div>
 
@@ -1543,7 +1543,7 @@ function DriverAvailableOrders() {
                     </div>
                     <div className="text-left">
                       <p className="text-xs text-gray-400">سعر المحل</p>
-                      <p className="text-lg font-bold text-rose-600">{shopPrice} ج.م</p>
+                      <p className="text-lg font-bold text-indigo-600">{shopPrice} ج.م</p>
                     </div>
                   </div>
                   <p className="text-sm text-gray-700">{order.description}</p>
@@ -1559,7 +1559,7 @@ function DriverAvailableOrders() {
                   <div className="pt-2 border-t space-y-2">
                     {/* Direct accept button */}
                     <Button
-                      className="w-full bg-rose-600 hover:bg-rose-700 gap-1 h-10"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 gap-1 h-10"
                       disabled={submitting[order.id] || !canAfford}
                       onClick={() => handleDirectAccept(order.id, shopPrice)}
                     >
@@ -1647,7 +1647,7 @@ function DriverMyOffers() {
 
   const offerStatusColors: Record<string, string> = {
     PENDING: 'bg-yellow-100 text-yellow-800',
-    ACCEPTED: 'bg-rose-100 text-rose-800',
+    ACCEPTED: 'bg-indigo-100 text-indigo-800',
     REJECTED: 'bg-red-100 text-red-800',
   };
   const offerStatusLabels: Record<string, string> = {
@@ -1686,7 +1686,7 @@ function DriverMyOffers() {
                   <p className="text-xs text-gray-500 mt-0.5">
                     {offer.order?.shop?.name} - {offer.order?.shop?.address}
                   </p>
-                  <p className="text-sm font-bold text-rose-600 mt-1">عرضك: {offer.price} ج.م</p>
+                  <p className="text-sm font-bold text-indigo-600 mt-1">عرضك: {offer.price} ج.م</p>
                 </div>
                 <Badge className={offerStatusColors[offer.status]}>
                   {offerStatusLabels[offer.status]}
@@ -1768,7 +1768,7 @@ function DriverMyDeliveries() {
                   <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="font-bold text-rose-600">{order.deliveryFee} ج.م</span>
+                  <span className="font-bold text-indigo-600">{order.deliveryFee} ج.م</span>
                   <div className="flex gap-2">
                     {order.status === 'ACCEPTED' && (
                       <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={() => updateStatus(order.id, 'PICKED_UP')}>
@@ -1776,7 +1776,7 @@ function DriverMyDeliveries() {
                       </Button>
                     )}
                     {order.status === 'PICKED_UP' && (
-                      <Button size="sm" className="bg-rose-600 hover:bg-rose-700" onClick={() => updateStatus(order.id, 'DELIVERED')}>
+                      <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700" onClick={() => updateStatus(order.id, 'DELIVERED')}>
                         تم التوصيل ✅
                       </Button>
                     )}
@@ -1891,7 +1891,7 @@ function DriverPoints() {
   };
   const paymentStatusColors: Record<string, string> = {
     PENDING: 'bg-yellow-100 text-yellow-800',
-    APPROVED: 'bg-rose-100 text-rose-800',
+    APPROVED: 'bg-indigo-100 text-indigo-800',
     REJECTED: 'bg-red-100 text-red-800',
   };
 
@@ -1903,7 +1903,7 @@ function DriverPoints() {
   const typeColors: Record<string, string> = {
     PURCHASE: 'text-blue-600',
     USAGE: 'text-red-600',
-    EARNING: 'text-rose-600',
+    EARNING: 'text-indigo-600',
   };
 
   const selectedMethodConfig = paymentMethods.find((m) => m.id === selectedMethod);
@@ -1916,7 +1916,7 @@ function DriverPoints() {
       </div>
 
       {/* Points balance card */}
-      <Card className="border-0 shadow-md bg-gradient-to-br from-rose-500 to-pink-600 text-white">
+      <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
         <CardContent className="p-6 text-center">
           <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
           <p className="text-4xl font-bold">{currentPoints}</p>
@@ -1976,7 +1976,7 @@ function DriverPoints() {
                     className="gap-1"
                     onClick={() => handleCopyPhone(method.accountPhone, method.id)}
                   >
-                    {copied === method.id ? <Check className="w-3.5 h-3.5 text-rose-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied === method.id ? <Check className="w-3.5 h-3.5 text-indigo-600" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied === method.id ? 'تم!' : 'نسخ'}
                   </Button>
                 </div>
@@ -1990,7 +1990,7 @@ function DriverPoints() {
       {/* Buy points button / form */}
       {!showPaymentForm ? (
         <Button
-          className="w-full bg-gradient-to-l from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800 gap-2 py-6 text-lg"
+          className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 gap-2 py-6 text-lg"
           onClick={() => setShowPaymentForm(true)}
         >
           <ShoppingCart className="w-5 h-5" /> اشتري نقاط دلوقتي
@@ -2000,7 +2000,7 @@ function DriverPoints() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-rose-600" />
+                <ShoppingCart className="w-5 h-5 text-indigo-600" />
                 طلب شراء نقاط
               </CardTitle>
               <Button variant="ghost" size="icon" onClick={() => setShowPaymentForm(false)}>
@@ -2019,7 +2019,7 @@ function DriverPoints() {
                       key={amount}
                       type="button"
                       variant={purchaseAmount === String(amount) ? 'default' : 'outline'}
-                      className={purchaseAmount === String(amount) ? 'bg-rose-600 hover:bg-rose-700' : ''}
+                      className={purchaseAmount === String(amount) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
                       onClick={() => setPurchaseAmount(String(amount))}
                     >
                       {amount}
@@ -2033,7 +2033,7 @@ function DriverPoints() {
                   onChange={(e) => setPurchaseAmount(e.target.value)}
                 />
                 {purchaseAmount && (
-                  <p className="text-sm text-rose-600 font-medium">
+                  <p className="text-sm text-indigo-600 font-medium">
                     المطلوب تحويله: {parseInt(purchaseAmount) * pointPrice} ج.م
                   </p>
                 )}
@@ -2050,7 +2050,7 @@ function DriverPoints() {
                       onClick={() => setSelectedMethod(method.id)}
                       className={`p-3 rounded-xl border-2 text-center transition-all ${
                         selectedMethod === method.id
-                          ? 'border-rose-500 bg-rose-50 shadow-md'
+                          ? 'border-indigo-500 bg-indigo-50 shadow-md'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -2063,10 +2063,10 @@ function DriverPoints() {
 
               {/* Show selected method info */}
               {selectedMethodConfig && (
-                <div className="p-3 bg-rose-50 rounded-lg text-sm">
-                  <p className="font-medium text-rose-800">حوّل على الرقم ده:</p>
-                  <p className="text-lg font-bold text-rose-900 mt-1 tracking-wider" dir="ltr">{selectedMethodConfig.accountPhone}</p>
-                  <p className="text-xs text-rose-600 mt-1">باسم: {selectedMethodConfig.accountName}</p>
+                <div className="p-3 bg-indigo-50 rounded-lg text-sm">
+                  <p className="font-medium text-indigo-800">حوّل على الرقم ده:</p>
+                  <p className="text-lg font-bold text-indigo-900 mt-1 tracking-wider" dir="ltr">{selectedMethodConfig.accountPhone}</p>
+                  <p className="text-xs text-indigo-600 mt-1">باسم: {selectedMethodConfig.accountName}</p>
                 </div>
               )}
 
@@ -2101,7 +2101,7 @@ function DriverPoints() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-l from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800"
+                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
                 disabled={submitting || !purchaseAmount || !selectedMethod}
               >
                 {submitting ? '⏳ جاري الإرسال...' : 'إرسال طلب الدفع'}
@@ -2236,7 +2236,7 @@ function AdminPayments() {
   };
   const paymentStatusColors: Record<string, string> = {
     PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    APPROVED: 'bg-rose-100 text-rose-800 border-emerald-300',
+    APPROVED: 'bg-indigo-100 text-indigo-800 border-emerald-300',
     REJECTED: 'bg-red-100 text-red-800 border-red-300',
   };
 
@@ -2304,7 +2304,7 @@ function AdminPayments() {
                 <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
                   <div>
                     <p className="text-xs text-gray-400">عدد النقاط</p>
-                    <p className="font-bold text-rose-600 text-lg">{payment.amount} نقطة</p>
+                    <p className="font-bold text-indigo-600 text-lg">{payment.amount} نقطة</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">طريقة الدفع</p>
@@ -2342,7 +2342,7 @@ function AdminPayments() {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        className="flex-1 bg-rose-600 hover:bg-rose-700 gap-1"
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1"
                         onClick={() => handleAction(payment.id, 'APPROVED')}
                       >
                         <CheckCircle className="w-4 h-4" /> قبول وإضافة النقاط
@@ -2421,7 +2421,7 @@ function AdminApprovals() {
   const roleIcons: Record<string, string> = { SHOP: '🏪', DRIVER: '🚚' };
   const roleColors: Record<string, string> = {
     SHOP: 'bg-blue-100 text-blue-700',
-    DRIVER: 'bg-rose-100 text-rose-700',
+    DRIVER: 'bg-indigo-100 text-indigo-700',
   };
 
   return (
@@ -2484,7 +2484,7 @@ function AdminApprovals() {
 
                 <div className="flex gap-2 pt-2 border-t">
                   <Button
-                    className="flex-1 bg-rose-600 hover:bg-rose-700 gap-1"
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1"
                     onClick={() => handleApprove(user.id)}
                   >
                     <CheckCircle className="w-4 h-4" /> قبول التسجيل
@@ -2564,7 +2564,7 @@ function AdminEarnings() {
         <>
           {/* Main stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border-0 shadow-md bg-gradient-to-br from-rose-500 to-pink-600 text-white">
+            <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
               <CardContent className="p-4 text-center">
                 <DollarSign className="w-7 h-7 mx-auto mb-1 opacity-80" />
                 <p className="text-2xl font-bold">{data?.totalCommission?.toFixed(2) || '0'}</p>
@@ -2597,22 +2597,22 @@ function AdminEarnings() {
           {/* How commission works */}
           <Card className="border-0 shadow-md bg-gradient-to-br from-rose-50 to-pink-50">
             <CardContent className="p-4">
-              <h3 className="font-bold text-rose-900 mb-2">إزاي العمولة بتشتغل؟</h3>
-              <div className="space-y-2 text-sm text-rose-800">
+              <h3 className="font-bold text-indigo-900 mb-2">إزاي العمولة بتشتغل؟</h3>
+              <div className="space-y-2 text-sm text-indigo-800">
                 <div className="flex items-center justify-between p-2 bg-white rounded-lg">
                   <span>رسوم التوصيلة</span>
                   <span className="font-bold">100%</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-rose-100 rounded-lg">
+                <div className="flex items-center justify-between p-2 bg-indigo-100 rounded-lg">
                   <span>عمولتك (الأدمن)</span>
-                  <span className="font-bold text-rose-700">10%</span>
+                  <span className="font-bold text-indigo-700">10%</span>
                 </div>
                 <div className="flex items-center justify-between p-2 bg-blue-100 rounded-lg">
                   <span>أرباح الدليفري</span>
                   <span className="font-bold text-blue-700">90%</span>
                 </div>
               </div>
-              <p className="text-xs text-rose-600 mt-2">مثال: توصيلة بـ 30 ج.م → عمولتك 3 ج.م والدليفري ياخد 27 ج.م</p>
+              <p className="text-xs text-indigo-600 mt-2">مثال: توصيلة بـ 30 ج.م → عمولتك 3 ج.م والدليفري ياخد 27 ج.م</p>
             </CardContent>
           </Card>
 
@@ -2637,7 +2637,7 @@ function AdminEarnings() {
                         </div>
                       </div>
                       <div className="text-left">
-                        <p className="font-bold text-rose-600">{item._sum.commission?.toFixed(2)} ج.م</p>
+                        <p className="font-bold text-indigo-600">{item._sum.commission?.toFixed(2)} ج.م</p>
                         <p className="text-xs text-gray-400">إجمالي: {item._sum.deliveryFee?.toFixed(2)} ج.م</p>
                       </div>
                     </div>
@@ -2668,7 +2668,7 @@ function AdminEarnings() {
                           </p>
                         </div>
                         <div className="text-left">
-                          <p className="font-bold text-rose-600">+{earning.commission?.toFixed(2)} ج.م</p>
+                          <p className="font-bold text-indigo-600">+{earning.commission?.toFixed(2)} ج.م</p>
                           <p className="text-xs text-gray-400">من {earning.deliveryFee?.toFixed(2)} ج.م</p>
                         </div>
                       </div>
@@ -2758,7 +2758,7 @@ function AdminPaymentSettings() {
           <Card className="border-0 shadow-md">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <Coins className="w-5 h-5 text-rose-600" />
+                <Coins className="w-5 h-5 text-indigo-600" />
                 <h3 className="font-bold">سعر النقطة</h3>
               </div>
               <p className="text-xs text-gray-500">السعر اللي بيدفعه المستخدم مقابل كل نقطة (بالجنيه المصري)</p>
@@ -2795,7 +2795,7 @@ function AdminPaymentSettings() {
                       type="checkbox"
                       checked={method.active}
                       onChange={(e) => updateMethod(method.id, 'active', e.target.checked)}
-                      className="w-4 h-4 accent-rose-600"
+                      className="w-4 h-4 accent-indigo-600"
                     />
                     <span className="text-sm text-gray-600">مفعّل</span>
                   </label>
@@ -2835,7 +2835,7 @@ function AdminPaymentSettings() {
           ))}
 
           <Button
-            className="w-full bg-gradient-to-l from-rose-600 to-pink-700 hover:from-rose-700 hover:to-pink-800 h-11"
+            className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 h-11"
             disabled={saving}
             onClick={handleSave}
           >
@@ -2888,7 +2888,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50/40 bg-dots">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50/40 bg-dots">
       <Sidebar />
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-white/20">
@@ -2897,11 +2897,11 @@ function AppContent() {
         </Button>
         <div className="flex items-center gap-2">
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-            isAdmin ? 'bg-gradient-to-br from-red-100 to-red-200' : isShop ? 'bg-gradient-to-br from-blue-100 to-rose-200' : 'bg-gradient-to-br from-emerald-100 to-teal-200'
+            isAdmin ? 'bg-gradient-to-br from-red-100 to-red-200' : isShop ? 'bg-gradient-to-br from-blue-100 to-indigo-200' : 'bg-gradient-to-br from-emerald-100 to-teal-200'
           }`}>
             {isAdmin ? <Settings className="w-4 h-4 text-red-600" /> :
              isShop ? <Store className="w-4 h-4 text-blue-600" /> :
-             <Truck className="w-4 h-4 text-rose-600" />}
+             <Truck className="w-4 h-4 text-indigo-600" />}
           </div>
           <span className="font-bold text-sm">{user.name}</span>
         </div>
