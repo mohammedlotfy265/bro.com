@@ -114,7 +114,6 @@ export async function DELETE(request: Request) {
     await db.shop.deleteMany({ where: { ownerId: userId } });
     await db.pointsTransaction.deleteMany({ where: { userId } });
     await db.paymentRequest.deleteMany({ where: { userId } });
-    await db.notification.deleteMany({ where: { userId } });
     await db.order.updateMany({ where: { acceptedDriverId: userId }, data: { acceptedDriverId: null } });
     await db.user.delete({ where: { id: userId } });
 
