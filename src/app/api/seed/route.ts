@@ -128,12 +128,16 @@ export async function POST() {
       }
     }
 
+    const adminPassword = 'Br0@dm!n#2024$ecure';
+
     const existingAdmin = await db.user.findFirst({ where: { role: 'ADMIN' } });
     if (existingAdmin) {
-      return NextResponse.json({ message: 'الأدمن موجود بالفعل', admin: { phone: existingAdmin.phone } });
+      await db.user.update({
+        where: { id: existingAdmin.id },
+        data: { phone: '01229893053', password: adminPassword },
+      });
+      return NextResponse.json({ message: 'تم تحديث بيانات الأدمن', admin: { phone: '01229893053' } });
     }
-
-    const adminPassword = 'Br0@dm!n#2024$ecure';
     const admin = await db.user.create({
       data: {
         name: 'المدير',
