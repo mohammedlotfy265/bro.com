@@ -97,17 +97,26 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'مش ممكن تشيل الأدمن' }, { status: 400 });
     }
 
-    // Delete related records first
-    await db.earning.deleteMany({ where: { order: { createdById: userId } } });
-    await db.deliveryOffer.deleteMany({ where: { order: { createdById: userId } } });
-    await db.deliveryOffer.deleteMany({ where: { driverId: userId } });
-    await db.order.deleteMany({ where: { createdById: userId } });
-    await db.shop.deleteMany({ where: { ownerId: userId } });
-    await db.pointsTransaction.deleteMany({ where: { userId } });
-    await db.paymentRequest.deleteMany({ where: { userId } });
-    await db.notification.deleteMany({ where: { userId } });
-    await db.order.updateMany({ where: { acceptedDriverId: userId }, data: { acceptedDriverId: null } });
-    await db.user.delete({ where: { id: userId } });
+    // Get all order IDs created by this user
+    const userOrders = await db.order.findMany({
+      where: { createdById: userId },
+      select: { id: true },
+    });
+    const orderIds = userOrders.map((o) => o.id);
+
+    // Delete in transaction
+    await db.$transaction([
+      db.earning.deleteMany({ where: { orderId: { in: orderIds } } }),
+      db.deliveryOffer.deleteMany({ where: { orderId: { in: orderIds } } }),
+      db.deliveryOffer.deleteMany({ where: { driverId: userId } }),
+      db.order.deleteMany({ where: { createdById: userId } }),
+      db.shop.deleteMany({ where: { ownerId: userId } }),
+      db.pointsTransaction.deleteMany({ where: { userId } }),
+      db.paymentRequest.deleteMany({ where: { userId } }),
+      db.notification.deleteMany({ where: { userId } }),
+      db.order.updateMany({ where: { acceptedDriverId: userId }, data: { acceptedDriverId: null } }),
+      db.user.delete({ where: { id: userId } }),
+    ]);
 
     return NextResponse.json({ message: 'تم حذف المستخدم بنجاح' });
   } catch (error) {
