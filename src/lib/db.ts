@@ -1,7 +1,22 @@
 import { PrismaClient } from '@prisma/client'
+import { execSync } from 'child_process'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
+  migrated: boolean | undefined
+}
+
+if (!globalForPrisma.migrated && process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  try {
+    execSync('npx prisma db push --skip-generate --accept-data-loss', {
+      env: { ...process.env },
+      stdio: 'pipe',
+      timeout: 30000,
+    })
+    globalForPrisma.migrated = true
+  } catch (e) {
+    console.error('Migration error:', e)
+  }
 }
 
 export const db =
