@@ -73,6 +73,45 @@ export async function POST(request: Request) {
   }
 }
 
+// DELETE /api/users - delete user permanently (admin only)
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const adminRole = searchParams.get('adminRole');
+
+    if (adminRole !== 'ADMIN') {
+      return NextResponse.json({ error: 'مسموح للأدمن بس' }, { status: 403 });
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: 'معرف المستخدم مطلوب' }, { status: 400 });
+    }
+
+    const user = await db.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return NextResponse.json({ error: 'المستخدم مش موجود' }, { status: 404 });
+    }
+
+    if (user.role === 'ADMIN') {
+      return NextResponse.json({ error: 'مش ممكن تشيل الأدمن' }, { status: 400 });
+    }
+
+    // Delete related records first
+    await db.pointsTransaction.deleteMany({ where: { userId } });
+    await db.deliveryOffer.deleteMany({ where: { driverId: userId } });
+    await db.paymentRequest.deleteMany({ where: { userId } });
+    await db.order.updateMany({ where: { acceptedDriverId: userId }, data: { acceptedDriverId: null } });
+    await db.shop.deleteMany({ where: { ownerId: userId } });
+    await db.user.delete({ where: { id: userId } });
+
+    return NextResponse.json({ message: 'تم حذف المستخدم بنجاح' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    return NextResponse.json({ error: 'حصل خطأ في حذف المستخدم' }, { status: 500 });
+  }
+}
+
 // PATCH /api/users - approve/reject/toggle active
 export async function PATCH(request: Request) {
   try {

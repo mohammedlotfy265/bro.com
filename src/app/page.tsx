@@ -19,7 +19,7 @@ import {
   XCircle, Clock, MapPin, Phone, Star, TrendingUp, ShoppingCart, ArrowLeft,
   Home as HomeIcon, ClipboardList, DollarSign, Gift, ChevronLeft, Settings, UserPlus,
   Building2, CircleDot, Wallet, CreditCard, Copy, Check, Send, Shield,
-  Sparkles, BadgeCheck, Lightbulb, ArrowRight, ExternalLink, HelpCircle
+  Sparkles, BadgeCheck, Lightbulb, ArrowRight, ExternalLink, HelpCircle, Trash2
 } from 'lucide-react';
 
 // ============== API HELPERS ==============
@@ -34,6 +34,10 @@ const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
+    return res.json();
+  },
+  del: async (url: string) => {
+    const res = await fetch(url, { method: 'DELETE' });
     return res.json();
   },
   patch: async (url: string, body: unknown) => {
@@ -639,6 +643,17 @@ function AdminUsers() {
     }
   };
 
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف "${userName}"؟ هذا الإجراء لا يمكن التراجع عنه.`)) return;
+    const data = await api.del(`/api/users?userId=${userId}&adminRole=ADMIN`);
+    if (data.error) {
+      toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'تم الحذف!', description: `تم حذف ${userName} نهائياً` });
+      loadUsers();
+    }
+  };
+
   const roleLabels: Record<string, string> = { ADMIN: 'أدمن', SHOP: 'شوب', DRIVER: 'دليفري' };
   const roleColors: Record<string, string> = {
     ADMIN: 'bg-red-100 text-red-700',
@@ -695,14 +710,24 @@ function AdminUsers() {
                   </div>
                 </div>
                 {user.role !== 'ADMIN' && (
-                  <Button
-                    variant={user.active ? 'outline' : 'default'}
-                    size="sm"
-                    onClick={() => handleToggleActive(user.id, user.active)}
-                    className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700'}
-                  >
-                    {user.active ? 'تعطيل' : 'تفعيل'}
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant={user.active ? 'outline' : 'default'}
+                      size="sm"
+                      onClick={() => handleToggleActive(user.id, user.active)}
+                      className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700'}
+                    >
+                      {user.active ? 'تعطيل' : 'تفعيل'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteUser(user.id, user.name)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
