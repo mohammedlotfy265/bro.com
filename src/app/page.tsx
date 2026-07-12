@@ -1136,7 +1136,6 @@ function ShopCreateOrder() {
   const { user, setCurrentView } = useAppStore();
   const { toast } = useToast();
   const [myShops, setMyShops] = useState<Shop[]>([]);
-  const [selectedShop, setSelectedShop] = useState('');
   const [description, setDescription] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -1150,7 +1149,6 @@ function ShopCreateOrder() {
         const filtered = data.shops.filter((s: Shop) => s.owner?.id === user.id);
         setMyShops(filtered);
         if (filtered.length > 0) {
-          setSelectedShop(filtered[0].id);
           setPickupAddress(filtered[0].address);
         }
       }
@@ -1159,11 +1157,11 @@ function ShopCreateOrder() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || myShops.length === 0) return;
     setLoading(true);
     try {
       const data = await api.post('/api/orders', {
-        shopId: selectedShop,
+        shopId: myShops[0].id,
         description,
         pickupAddress,
         deliveryAddress,
@@ -1195,32 +1193,19 @@ function ShopCreateOrder() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>المحل</Label>
-              {myShops.length === 1 ? (
-                <div className="flex items-center gap-3 p-3 bg-gradient-to-l from-indigo-50/50 to-purple-50/30 rounded-xl border border-indigo-100">
-                  <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
-                    {shopTypeIcons[myShops[0].type] || '🏪'}
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">{myShops[0].name}</p>
-                    <p className="text-xs text-gray-400">{myShops[0].address}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-3 bg-gradient-to-l from-indigo-50/50 to-purple-50/30 rounded-xl border border-indigo-100">
+                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
+                  {myShops.length > 0 ? (shopTypeIcons[myShops[0].type] || '🏪') : '🏪'}
                 </div>
-              ) : (
-                <Select value={selectedShop} onValueChange={(v) => {
-                  setSelectedShop(v);
-                  const shop = myShops.find((s) => s.id === v);
-                  if (shop) setPickupAddress(shop.address);
-                }}>
-                  <SelectTrigger><SelectValue placeholder="اختر المحل" /></SelectTrigger>
-                  <SelectContent>
-                    {myShops.map((shop) => (
-                      <SelectItem key={shop.id} value={shop.id}>
-                        {shopTypeIcons[shop.type]} {shop.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+                <div>
+                  <p className="font-medium text-sm text-gray-900">
+                    {myShops.length > 0 ? myShops[0].name : 'لا يوجد محل'}
+                  </p>
+                  {myShops.length > 0 && (
+                    <p className="text-xs text-gray-400">{myShops[0].address}</p>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>وصف الطلب</Label>
