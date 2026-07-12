@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+const DROP_TABLES = `
+DROP TABLE IF EXISTS "delivery_offers";
+DROP TABLE IF EXISTS "points_transactions";
+DROP TABLE IF EXISTS "earnings";
+DROP TABLE IF EXISTS "payment_requests";
+DROP TABLE IF EXISTS "orders";
+DROP TABLE IF EXISTS "payment_method_settings";
+DROP TABLE IF EXISTS "app_settings";
+DROP TABLE IF EXISTS "shops";
+DROP TABLE IF EXISTS "users";
+`;
+
 const CREATE_TABLES = `
 CREATE TABLE IF NOT EXISTS "users" (
     id TEXT PRIMARY KEY,
@@ -22,41 +34,41 @@ CREATE TABLE IF NOT EXISTS "shops" (
     address TEXT NOT NULL,
     phone TEXT NOT NULL,
     active BOOLEAN NOT NULL DEFAULT true,
-    owner_id TEXT NOT NULL REFERENCES users(id),
+    "ownerId" TEXT NOT NULL REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "orders" (
     id TEXT PRIMARY KEY,
-    shop_id TEXT NOT NULL REFERENCES shops(id),
+    "shopId" TEXT NOT NULL REFERENCES shops(id),
     description TEXT NOT NULL,
-    pickup_address TEXT NOT NULL,
-    delivery_address TEXT NOT NULL,
+    "pickupAddress" TEXT NOT NULL,
+    "deliveryAddress" TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'PENDING',
-    delivery_fee REAL NOT NULL DEFAULT 0,
+    "deliveryFee" REAL NOT NULL DEFAULT 0,
     commission REAL NOT NULL DEFAULT 0,
-    points_cost INTEGER NOT NULL DEFAULT 1,
-    created_by_id TEXT NOT NULL REFERENCES users(id),
-    accepted_driver_id TEXT REFERENCES users(id),
+    "pointsCost" INTEGER NOT NULL DEFAULT 1,
+    "createdById" TEXT NOT NULL REFERENCES users(id),
+    "acceptedDriverId" TEXT REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "earnings" (
     id TEXT PRIMARY KEY,
-    order_id TEXT NOT NULL UNIQUE REFERENCES orders(id),
-    shop_id TEXT NOT NULL REFERENCES shops(id),
-    delivery_fee REAL NOT NULL,
+    "orderId" TEXT NOT NULL UNIQUE REFERENCES orders(id),
+    "shopId" TEXT NOT NULL REFERENCES shops(id),
+    "deliveryFee" REAL NOT NULL,
     commission REAL NOT NULL,
-    driver_earning REAL NOT NULL,
+    "driverEarning" REAL NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "delivery_offers" (
     id TEXT PRIMARY KEY,
-    order_id TEXT NOT NULL REFERENCES orders(id),
-    driver_id TEXT NOT NULL REFERENCES users(id),
+    "orderId" TEXT NOT NULL REFERENCES orders(id),
+    "driverId" TEXT NOT NULL REFERENCES users(id),
     price REAL NOT NULL,
     status TEXT NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -65,7 +77,7 @@ CREATE TABLE IF NOT EXISTS "delivery_offers" (
 
 CREATE TABLE IF NOT EXISTS "points_transactions" (
     id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES users(id),
+    "userId" TEXT NOT NULL REFERENCES users(id),
     amount INTEGER NOT NULL,
     type TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -74,15 +86,15 @@ CREATE TABLE IF NOT EXISTS "points_transactions" (
 
 CREATE TABLE IF NOT EXISTS "payment_requests" (
     id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES users(id),
+    "userId" TEXT NOT NULL REFERENCES users(id),
     amount INTEGER NOT NULL,
-    payment_method TEXT NOT NULL,
-    sender_phone TEXT NOT NULL,
-    sender_name TEXT NOT NULL,
-    receipt_number TEXT,
+    "paymentMethod" TEXT NOT NULL,
+    "senderPhone" TEXT NOT NULL,
+    "senderName" TEXT NOT NULL,
+    "receiptNumber" TEXT,
     status TEXT NOT NULL DEFAULT 'PENDING',
-    admin_note TEXT,
-    reviewed_at TIMESTAMP,
+    "adminNote" TEXT,
+    "reviewedAt" TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -92,8 +104,8 @@ CREATE TABLE IF NOT EXISTS "payment_method_settings" (
     name TEXT NOT NULL,
     icon TEXT NOT NULL DEFAULT '📱',
     color TEXT NOT NULL DEFAULT 'from-red-500 to-red-600',
-    account_name TEXT NOT NULL DEFAULT 'المدير',
-    account_phone TEXT NOT NULL DEFAULT '01000000000',
+    "accountName" TEXT NOT NULL DEFAULT 'المدير',
+    "accountPhone" TEXT NOT NULL DEFAULT '01000000000',
     instructions TEXT NOT NULL DEFAULT '',
     active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -102,7 +114,7 @@ CREATE TABLE IF NOT EXISTS "payment_method_settings" (
 
 CREATE TABLE IF NOT EXISTS "app_settings" (
     id TEXT PRIMARY KEY,
-    point_price REAL NOT NULL DEFAULT 1,
+    "pointPrice" REAL NOT NULL DEFAULT 1,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -110,9 +122,10 @@ CREATE TABLE IF NOT EXISTS "app_settings" (
 
 export async function POST() {
   try {
-    const statements = CREATE_TABLES.split(';').filter(s => s.trim());
-    for (const stmt of statements) {
-      await db.$executeRawUnsafe(stmt + ';');
+    for (const sql of [DROP_TABLES, CREATE_TABLES]) {
+      for (const stmt of sql.split(';').filter(s => s.trim())) {
+        await db.$executeRawUnsafe(stmt + ';');
+      }
     }
 
     const existingAdmin = await db.user.findFirst({ where: { role: 'ADMIN' } });
