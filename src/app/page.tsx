@@ -1195,20 +1195,32 @@ function ShopCreateOrder() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>المحل</Label>
-              <Select value={selectedShop} onValueChange={(v) => {
-                setSelectedShop(v);
-                const shop = myShops.find((s) => s.id === v);
-                if (shop) setPickupAddress(shop.address);
-              }}>
-                <SelectTrigger><SelectValue placeholder="اختر المحل" /></SelectTrigger>
-                <SelectContent>
-                  {myShops.map((shop) => (
-                    <SelectItem key={shop.id} value={shop.id}>
-                      {shopTypeIcons[shop.type]} {shop.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {myShops.length === 1 ? (
+                <div className="flex items-center gap-3 p-3 bg-gradient-to-l from-indigo-50/50 to-purple-50/30 rounded-xl border border-indigo-100">
+                  <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
+                    {shopTypeIcons[myShops[0].type] || '🏪'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-gray-900">{myShops[0].name}</p>
+                    <p className="text-xs text-gray-400">{myShops[0].address}</p>
+                  </div>
+                </div>
+              ) : (
+                <Select value={selectedShop} onValueChange={(v) => {
+                  setSelectedShop(v);
+                  const shop = myShops.find((s) => s.id === v);
+                  if (shop) setPickupAddress(shop.address);
+                }}>
+                  <SelectTrigger><SelectValue placeholder="اختر المحل" /></SelectTrigger>
+                  <SelectContent>
+                    {myShops.map((shop) => (
+                      <SelectItem key={shop.id} value={shop.id}>
+                        {shopTypeIcons[shop.type]} {shop.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-2">
               <Label>وصف الطلب</Label>
