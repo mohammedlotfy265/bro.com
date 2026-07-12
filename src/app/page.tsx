@@ -121,12 +121,12 @@ function LoginView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-mesh bg-dots p-4 relative overflow-hidden">
       {/* Decorative floating elements */}
-      <div className="absolute top-10 left-10 w-64 h-64 bg-indigo-200/20 rounded-full blur-3xl animate-float-slow" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-200/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-indigo-300/15 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-teal-300/15 rounded-full blur-2xl animate-float-slow" style={{ animationDelay: '4s' }} />
+      <div className="absolute top-10 left-10 w-72 h-72 bg-indigo-200/15 rounded-full blur-3xl animate-morph" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-violet-200/15 rounded-full blur-3xl animate-drift" />
+      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-violet-300/15 rounded-full blur-2xl animate-drift" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-indigo-300/15 rounded-full blur-2xl animate-morph" style={{ animationDelay: '4s' }} />
 
       <div className="w-full max-w-md relative animate-fade-in">
         <div className="text-center mb-8">
@@ -226,7 +226,7 @@ function RegisterView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-mesh bg-dots p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -2888,7 +2888,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50/20">
+    <div className="min-h-screen bg-mesh bg-dots-sm">
       <Sidebar />
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-white/20">
