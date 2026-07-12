@@ -125,78 +125,114 @@ function LoginView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-indigo-50/30 to-white bg-dots p-4 relative overflow-hidden">
-      {/* Decorative floating elements */}
-      <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-rose-300/20 to-pink-300/20 rounded-full blur-3xl animate-morph" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-br from-violet-300/20 to-indigo-300/20 rounded-full blur-3xl animate-drift" />
-      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-gradient-to-br from-indigo-300/15 to-violet-300/15 rounded-full blur-2xl animate-drift" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-gradient-to-br from-amber-300/15 to-violet-300/15 rounded-full blur-2xl animate-morph" style={{ animationDelay: '4s' }} />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50/80 via-white to-violet-50/60 bg-grid-pattern p-4 relative overflow-hidden">
+      {/* Animated floating orbs */}
+      <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-indigo-300/20 to-purple-300/20 rounded-full blur-3xl animate-morph" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-br from-violet-300/20 to-fuchsia-300/15 rounded-full blur-3xl animate-drift" />
+      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-2xl animate-drift" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-gradient-to-br from-purple-300/10 to-pink-300/10 rounded-full blur-2xl animate-morph" style={{ animationDelay: '4s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-indigo-400/5 to-transparent rounded-full blur-3xl animate-breathe" />
 
-      <div className="w-full max-w-md relative animate-fade-in">
-        <div className="text-center mb-8">
+      <div className="w-full max-w-md relative">
+        {/* Brand section */}
+        <div className="text-center mb-10 animate-fade-in-down">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-indigo-400/15 rounded-2xl blur-xl animate-pulse-glow" />
-            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg relative animate-scale-in">
-              <Truck className="w-10 h-10 text-white" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl blur-2xl animate-pulse-glow" />
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200/50 relative overflow-hidden">
+              <div className="absolute inset-0 bg-white/10 animate-breathe" />
+              <Truck className="w-10 h-10 text-white relative z-10" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">دليفري برو</h1>
-          <p className="text-gray-500 mt-2">نظام التوصيل الذكي</p>
+          <h1 className="text-4xl font-bold gradient-text mb-1">دليفري برو</h1>
+          <p className="text-gray-400 text-sm tracking-wide">نظام التوصيل الذكي</p>
         </div>
 
-        <Card className="shadow-xl border-0 glass backdrop-blur-xl card-hover">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl">تسجيل الدخول</CardTitle>
-            <CardDescription>ادخل رقم التليفون والباسورد</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">رقم التليفون</Label>
+        {/* Login card with gradient border */}
+        <div className="relative animate-slide-up">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-sm opacity-75 animate-gradient-border" />
+          <Card className="relative bg-white/95 shadow-2xl border-0 rounded-2xl overflow-hidden">
+            {/* Decorative top bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-indigo-600 via-purple-500 to-indigo-400" />
+            <CardHeader className="text-center pt-8 pb-3">
+              <CardTitle className="text-2xl font-bold text-gray-900">مرحباً بك</CardTitle>
+              <CardDescription className="text-sm">سجل دخولك للبدء</CardDescription>
+            </CardHeader>
+            <CardContent className="px-6 pb-8">
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700">رقم التليفون</Label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity blur-sm" />
+                    <div className="relative flex items-center">
+                      <Phone className="absolute right-3 w-4 h-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="01xxxxxxxxx"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="pr-10 border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">الباسورد</Label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity blur-sm" />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-l from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 h-11 text-base shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      جاري الدخول...
+                    </span>
+                  ) : 'دخول'}
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-100" />
+                </div>
                 <div className="relative">
-                  <Phone className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="01xxxxxxxxx"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="pr-10"
-                    required
-                  />
+                  <Button
+                    variant="link"
+                    onClick={() => setCurrentView('register')}
+                    className="text-indigo-600 hover:text-indigo-800 bg-white/80 px-4 text-sm"
+                  >
+                    حساب جديد؟ سجل من هنا
+                  </Button>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">الباسورد</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
-                disabled={loading}
-              >
-                {loading ? 'جاري الدخول...' : 'دخول'}
-              </Button>
-            </form>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="mt-4 text-center">
-              <Button
-                variant="link"
-                onClick={() => setCurrentView('register')}
-                className="text-indigo-600"
-              >
-                حساب جديد
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Footer */}
+        <p className="text-center text-xs text-gray-400 mt-8 animate-fade-in">
+          دليفري برو © {new Date().getFullYear()} — جميع الحقوق محفوظة
+        </p>
       </div>
     </div>
   );
@@ -230,65 +266,73 @@ function RegisterView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-indigo-50/30 to-white bg-dots p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50/80 via-white to-violet-50/60 bg-grid-pattern p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-300/10 to-purple-300/10 rounded-full blur-3xl animate-morph" style={{ width: '500px', height: '500px', top: '-10%', right: '-10%' }} />
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-300/8 to-pink-300/8 rounded-full blur-3xl animate-drift" style={{ width: '400px', height: '400px', bottom: '-10%', left: '-10%' }} />
+
+      <div className="w-full max-w-md relative">
+        <div className="text-center mb-8 animate-fade-in-down">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-indigo-200/50">
             <UserPlus className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">حساب جديد</h1>
+          <h1 className="text-3xl font-bold gradient-text">حساب جديد</h1>
+          <p className="text-gray-400 text-sm mt-1">أنشئ حسابك وابدأ</p>
         </div>
 
-        <Card className="shadow-xl border-0">
-          <CardContent className="pt-6">
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Label>الاسم</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="اسمك" required />
+        <div className="relative animate-slide-up">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-sm opacity-75 animate-gradient-border" />
+          <Card className="relative bg-white/95 shadow-2xl border-0 rounded-2xl overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-indigo-600 via-purple-500 to-indigo-400" />
+            <CardContent className="pt-8 px-6 pb-8">
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">الاسم</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="اسمك" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">رقم التليفون</Label>
+                  <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01xxxxxxxxx" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">الباسورد</Label>
+                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">نوع الحساب</Label>
+                  <Select value={role} onValueChange={setRole}>
+                    <SelectTrigger className="h-11 border-gray-200 bg-gray-50/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SHOP">
+                        <span className="flex items-center gap-2">
+                          <Store className="w-4 h-4" /> صاحب محل (شوب)
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="DRIVER">
+                        <span className="flex items-center gap-2">
+                          <Truck className="w-4 h-4" /> دليفري
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-l from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all h-11"
+                  disabled={loading}
+                >
+                  {loading ? 'جاري التسجيل...' : 'تسجيل'}
+                </Button>
+              </form>
+              <div className="mt-6 text-center">
+                <Button variant="link" onClick={() => setCurrentView('login')} className="text-indigo-600 hover:text-indigo-800 text-sm">
+                  عندي حساب بالفعل
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label>رقم التليفون</Label>
-                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01xxxxxxxxx" required />
-              </div>
-              <div className="space-y-2">
-                <Label>الباسورد</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-              </div>
-              <div className="space-y-2">
-                <Label>نوع الحساب</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SHOP">
-                      <span className="flex items-center gap-2">
-                        <Store className="w-4 h-4" /> صاحب محل (شوب)
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="DRIVER">
-                      <span className="flex items-center gap-2">
-                        <Truck className="w-4 h-4" /> دليفري
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
-                disabled={loading}
-              >
-                {loading ? 'جاري التسجيل...' : 'تسجيل'}
-              </Button>
-            </form>
-            <div className="mt-4 text-center">
-              <Button variant="link" onClick={() => setCurrentView('login')} className="text-indigo-600">
-                عندي حساب بالفعل
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -311,41 +355,67 @@ function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center">
-              <Truck className="w-4 h-4 text-white" />
+      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+        {/* Header */}
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200/50">
+              <Truck className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg">دليفري برو</span>
+            <div>
+              <span className="font-bold text-base text-gray-900">دليفري برو</span>
+              <p className="text-[10px] text-gray-400 -mt-0.5">لوحة التحكم</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-100" onClick={() => setSidebarOpen(false)}>
             <X className="w-4 h-4" />
           </Button>
         </div>
-        <nav className="p-3 space-y-1">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id as typeof currentView)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                currentView === item.id
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+
+        {/* Navigation */}
+        <nav className="p-3 space-y-0.5 overflow-y-auto" style={{ height: 'calc(100% - 140px)' }}>
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentView(item.id as typeof currentView)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative group ${
+                  isActive
+                    ? 'bg-gradient-to-l from-indigo-50 to-purple-50/50 text-indigo-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full" />
+                )}
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+                }`}>
+                  <Icon className="w-3.5 h-3.5" />
+                </div>
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
-            <LogOut className="w-4 h-4" />
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
+            onClick={logout}
+          >
+            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+              <LogOut className="w-3.5 h-3.5" />
+            </div>
             تسجيل خروج
           </Button>
         </div>
@@ -376,7 +446,7 @@ function AdminDashboard() {
     { label: 'الدليفري', value: stats.totalDrivers || 0, icon: Truck, color: 'from-blue-500 to-cyan-600' },
     { label: 'الطلبات', value: stats.totalOrders || 0, icon: Package, color: 'from-orange-500 to-amber-600' },
     { label: 'في الانتظار', value: stats.pendingOrders || 0, icon: Clock, color: 'from-yellow-500 to-orange-500' },
-    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: CheckCircle, color: 'from-indigo-500 to-violet-600' },
+    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: CheckCircle, color: 'from-indigo-600 to-purple-700' },
     { label: 'إجمالي المستخدمين', value: stats.totalUsers || 0, icon: Users, color: 'from-violet-500 to-indigo-600' },
   ];
 
@@ -387,21 +457,22 @@ function AdminDashboard() {
         <p className="text-gray-500 mt-1">نظرة عامة على النظام</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 entrance-group">
         {statCards.map((stat, i) => (
-          <Card key={stat.label} className="border-0 shadow-md card-hover cursor-pointer" style={{ animation: `fade-in-up 0.5s ease-out ${i * 0.08}s forwards`, opacity: 0 }}>
+          <Card key={stat.label} className={`border-0 shadow-md hover-lift cursor-pointer overflow-hidden ${['from-emerald-500 to-green-600','from-blue-500 to-cyan-600','from-orange-500 to-amber-600','from-yellow-500 to-orange-500','from-indigo-600 to-purple-700','from-violet-500 to-indigo-600'].includes(stat.color) ? 'gradient-border-card' : ''}`} style={{ animationDelay: `${i * 0.08}s` }}>
             <CardContent className="p-4">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-md`}>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-md shadow-${stat.color.split('-')[1]}-200/50`}>
                 <stat.icon className="w-5 h-5 text-white" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-2xl font-bold text-gray-900 count-animate">{stat.value}</p>
               <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className="border-0 shadow-md">
+      <Card className="border-0 shadow-md hover-lift overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-indigo-600 via-purple-500 to-indigo-400" />
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock className="w-5 h-5 text-indigo-600" />
@@ -412,18 +483,24 @@ function AdminDashboard() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+                <div key={i} className="h-12 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
               ))}
             </div>
           ) : recentOrders.length === 0 ? (
-            <p className="text-center text-gray-400 py-8">مفيش طلبات لسه</p>
+            <div className="text-center py-8">
+              <Package className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-400">مفيش طلبات لسه</p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-sm">{order.description}</p>
-                    <p className="text-xs text-gray-500">{order.shop?.name}</p>
+            <div className="space-y-2">
+              {recentOrders.map((order, idx) => (
+                <div key={order.id} className="flex items-center justify-between p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 hover:border-indigo-100 hover:shadow-sm transition-all" style={{ animationDelay: `${idx * 0.05}s` }}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${order.status === 'DELIVERED' ? 'bg-indigo-400' : order.status === 'CANCELLED' ? 'bg-red-400' : 'bg-amber-400'}`} />
+                    <div>
+                      <p className="font-medium text-sm">{order.description?.slice(0, 50)}{order.description?.length > 50 ? '...' : ''}</p>
+                      <p className="text-xs text-gray-400">{order.shop?.name}</p>
+                    </div>
                   </div>
                   <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
                 </div>
@@ -506,7 +583,7 @@ function AdminShops() {
         </div>
         <Dialog open={showAdd} onOpenChange={setShowAdd}>
           <DialogTrigger asChild>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
               <Plus className="w-4 h-4" /> إضافة محل
             </Button>
           </DialogTrigger>
@@ -556,7 +633,7 @@ function AdminShops() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">إضافة المحل</Button>
+              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">إضافة المحل</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -565,44 +642,47 @@ function AdminShops() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-gray-100 rounded-xl skeleton-shimmer-rich" />
           ))}
         </div>
       ) : shops.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Store className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش محلات مسجلة لسه</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Store className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش محلات مسجلة لسه</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {shops.map((shop) => (
-            <Card key={shop.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 entrance-group">
+          {shops.map((shop, idx) => (
+            <Card key={shop.id} className="border-0 shadow-md hover-lift overflow-hidden relative" style={{ animationDelay: `${idx * 0.06}s` }}>
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-indigo-400 via-purple-400 to-indigo-400" />
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl">
+                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl flex items-center justify-center text-2xl shadow-sm">
                       {shopTypeIcons[shop.type] || '🏪'}
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900">{shop.name}</h3>
-                      <Badge variant="outline" className="mt-1">{shopTypeLabels[shop.type] || shop.type}</Badge>
+                      <Badge variant="outline" className="mt-1 text-xs">{shopTypeLabels[shop.type] || shop.type}</Badge>
                     </div>
                   </div>
-                  <Badge className={shop.active ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}>
+                  <Badge className={`${shop.active ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'} text-xs`}>
                     {shop.active ? 'نشط' : 'معلق'}
                   </Badge>
                 </div>
-                <div className="mt-4 space-y-2 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5" /> {shop.address}
+                <div className="mt-4 space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400" /> {shop.address}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5" /> {shop.phone}
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" /> {shop.phone}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5" /> {shop.owner?.name}
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Users className="w-3.5 h-3.5 text-gray-400" /> {shop.owner?.name}
                   </div>
                 </div>
               </CardContent>
@@ -680,7 +760,7 @@ function AdminUsers() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-16 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : (
@@ -698,7 +778,7 @@ function AdminUsers() {
                     <p className="font-medium">{user.name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs text-gray-500">{user.phone}</span>
-                      <Badge className={`text-xs ${roleColors[user.role]}`}>
+                      <Badge className={`rounded-full text-xs ${roleColors[user.role]}`}>
                         {roleLabels[user.role]}
                       </Badge>
                       {user.role === 'DRIVER' && (
@@ -715,7 +795,7 @@ function AdminUsers() {
                       variant={user.active ? 'outline' : 'default'}
                       size="sm"
                       onClick={() => handleToggleActive(user.id, user.active)}
-                      className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700'}
+                      className={user.active ? 'text-red-600 border-red-200 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all'}
                     >
                       {user.active ? 'تعطيل' : 'تفعيل'}
                     </Button>
@@ -765,14 +845,16 @@ function AdminOrders() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-24 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش طلبات لسه</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Package className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش طلبات لسه</p>
           </CardContent>
         </Card>
       ) : (
@@ -811,7 +893,7 @@ function AdminOrders() {
                           </Button>
                         )}
                         {order.status === 'PICKED_UP' && (
-                          <Button size="sm" className="text-xs h-7 bg-indigo-600 hover:bg-indigo-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+                          <Button size="sm" className="text-xs h-7 bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
                             تم التوصيل
                           </Button>
                         )}
@@ -841,41 +923,65 @@ function ShopSidebar() {
   return (
     <>
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Store className="w-4 h-4 text-white" />
+      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/50">
+              <Store className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg">شوبي</span>
+            <div>
+              <span className="font-bold text-base text-gray-900">شوبي</span>
+              <p className="text-[10px] text-gray-400 -mt-0.5">لوحة التحكم</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-100" onClick={() => setSidebarOpen(false)}>
             <X className="w-4 h-4" />
           </Button>
         </div>
-        <div className="p-4 bg-blue-50 m-3 rounded-lg">
+        <div className="mx-3 mt-3 p-3 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-xl border border-blue-100/50">
           <p className="font-medium text-sm text-blue-900">{user?.name}</p>
-          <p className="text-xs text-blue-600">{user?.phone}</p>
+          <p className="text-xs text-blue-600 mt-0.5">{user?.phone}</p>
         </div>
-        <nav className="p-3 space-y-1">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id as typeof currentView)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                currentView === item.id ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+        <nav className="p-3 space-y-0.5 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentView(item.id as typeof currentView)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative group ${
+                  isActive
+                    ? 'bg-gradient-to-l from-blue-50 to-indigo-50/50 text-blue-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full" />
+                )}
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+                }`}>
+                  <Icon className="w-3.5 h-3.5" />
+                </div>
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
-            <LogOut className="w-4 h-4" />
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
+            onClick={logout}
+          >
+            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+              <LogOut className="w-3.5 h-3.5" />
+            </div>
             تسجيل خروج
           </Button>
         </div>
@@ -920,31 +1026,41 @@ function ShopDashboard() {
         <p className="text-gray-500 mt-1">لوحة تحكم المحل</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <Card className="border-0 shadow-md">
+      <div className="grid grid-cols-3 gap-3 entrance-group">
+        <Card className="border-0 shadow-md hover-lift overflow-hidden" style={{ animationDelay: '0.05s' }}>
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-amber-400 to-yellow-500" />
           <CardContent className="p-4 text-center">
-            <Clock className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold">{pendingCount}</p>
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <Clock className="w-5 h-5 text-amber-500" />
+            </div>
+            <p className="text-2xl font-bold count-animate">{pendingCount}</p>
             <p className="text-xs text-gray-500">في الانتظار</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-md">
+        <Card className="border-0 shadow-md hover-lift overflow-hidden" style={{ animationDelay: '0.1s' }}>
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-blue-400 to-cyan-500" />
           <CardContent className="p-4 text-center">
-            <Truck className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold">{activeCount}</p>
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <Truck className="w-5 h-5 text-blue-500" />
+            </div>
+            <p className="text-2xl font-bold count-animate">{activeCount}</p>
             <p className="text-xs text-gray-500">نشطة</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-md">
+        <Card className="border-0 shadow-md hover-lift overflow-hidden" style={{ animationDelay: '0.15s' }}>
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-emerald-400 to-green-500" />
           <CardContent className="p-4 text-center">
-            <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold">{deliveredCount}</p>
+            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <CheckCircle className="w-5 h-5 text-emerald-500" />
+            </div>
+            <p className="text-2xl font-bold count-animate">{deliveredCount}</p>
             <p className="text-xs text-gray-500">تم التوصيل</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-0 shadow-md">
+      <Card className="border-0 shadow-md hover-lift overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-blue-500 via-indigo-400 to-blue-400" />
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Store className="w-5 h-5 text-blue-600" />
@@ -953,15 +1069,21 @@ function ShopDashboard() {
         </CardHeader>
         <CardContent>
           {myShops.length === 0 ? (
-            <p className="text-center text-gray-400 py-6">مفيش محلات مسجلة باسمك. الأدمن لازم يضيفك الأول.</p>
+            <div className="text-center py-6">
+              <Store className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-400 text-sm">مفيش محلات مسجلة باسمك</p>
+              <p className="text-gray-300 text-xs mt-1">الأدمن لازم يضيفك الأول</p>
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {myShops.map((shop) => (
-                <div key={shop.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <span className="text-2xl">{shopTypeIcons[shop.type]}</span>
+                <div key={shop.id} className="flex items-center gap-3 p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 hover:border-blue-100 transition-all">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-lg">
+                    {shopTypeIcons[shop.type] || '🏪'}
+                  </div>
                   <div>
-                    <p className="font-medium">{shop.name}</p>
-                    <p className="text-xs text-gray-500">{shopTypeLabels[shop.type]} - {shop.address}</p>
+                    <p className="font-medium text-sm">{shop.name}</p>
+                    <p className="text-xs text-gray-400">{shopTypeLabels[shop.type]} - {shop.address}</p>
                   </div>
                 </div>
               ))}
@@ -971,7 +1093,7 @@ function ShopDashboard() {
       </Card>
 
       <Button
-        className="w-full bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2 py-6 text-lg"
+        className="w-full bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 gap-2 py-6 text-lg shadow-lg shadow-blue-200/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
         onClick={() => setCurrentView('shop-create-order')}
       >
         <Plus className="w-5 h-5" /> طلب توصيلة جديدة
@@ -1180,14 +1302,16 @@ function ShopOrders() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-24 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش طلبات لسه</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Package className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش طلبات لسه</p>
             <p className="text-sm text-gray-300 mt-1">اعمل طلب جديد من القايمة</p>
           </CardContent>
         </Card>
@@ -1225,7 +1349,7 @@ function ShopOrders() {
                             <span className="text-sm font-bold text-indigo-600">{offer.price} ج.م</span>
                             {offer.status === 'PENDING' && (
                               <div className="flex gap-1">
-                                <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700" onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}>
+                                <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}>
                                   <CheckCircle className="w-3 h-3 ml-1" /> قبول
                                 </Button>
                                 <Button size="sm" variant="outline" className="h-7 text-xs text-red-600 border-red-200" onClick={() => handleOfferAction(offer.id, 'REJECTED')}>
@@ -1252,7 +1376,7 @@ function ShopOrders() {
                 )}
                 {order.status === 'PICKED_UP' && (
                   <div className="mt-3 pt-3 border-t flex justify-end">
-                    <Button size="sm" className="text-xs bg-indigo-600 hover:bg-indigo-700" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
+                    <Button size="sm" className="text-xs bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => updateOrderStatus(order.id, 'DELIVERED')}>
                       تأكيد التوصيل
                     </Button>
                   </div>
@@ -1300,44 +1424,68 @@ function DriverSidebar() {
   return (
     <>
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-              <Truck className="w-4 h-4 text-white" />
+      <aside className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
+              <Truck className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg">دليفري</span>
+            <div>
+              <span className="font-bold text-base text-gray-900">دليفري</span>
+              <p className="text-[10px] text-gray-400 -mt-0.5">لوحة التحكم</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-100" onClick={() => setSidebarOpen(false)}>
             <X className="w-4 h-4" />
           </Button>
         </div>
-        <div className="p-4 bg-indigo-50 m-3 rounded-lg">
-          <p className="font-medium text-sm text-indigo-900">{user?.name}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <Coins className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="text-sm text-indigo-700 font-bold">{user?.points} نقطة</span>
+        <div className="mx-3 mt-3 p-3 bg-gradient-to-br from-emerald-50 to-teal-50/50 rounded-xl border border-emerald-100/50">
+          <p className="font-medium text-sm text-gray-900">{user?.name}</p>
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <Coins className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-sm text-emerald-700 font-bold">{user?.points} نقطة</span>
           </div>
         </div>
-        <nav className="p-3 space-y-1">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id as typeof currentView)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                currentView === item.id ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+        <nav className="p-3 space-y-0.5 overflow-y-auto" style={{ height: 'calc(100% - 200px)' }}>
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentView(item.id as typeof currentView)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative group ${
+                  isActive
+                    ? 'bg-gradient-to-l from-emerald-50 to-teal-50/50 text-emerald-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
+                )}
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
+                }`}>
+                  <Icon className="w-3.5 h-3.5" />
+                </div>
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
-            <LogOut className="w-4 h-4" />
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
+            onClick={logout}
+          >
+            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+              <LogOut className="w-3.5 h-3.5" />
+            </div>
             تسجيل خروج
           </Button>
         </div>
@@ -1372,24 +1520,29 @@ function DriverDashboard() {
         <p className="text-gray-500 mt-1">لوحة تحكم الدليفري</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
-          <CardContent className="p-4 text-center">
-            <Coins className="w-8 h-8 mx-auto mb-2 opacity-80" />
-            <p className="text-3xl font-bold">{user?.points}</p>
+      <div className="grid grid-cols-2 gap-3 entrance-group">
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white hover-lift" style={{ animationDelay: '0.05s' }}>
+          <CardContent className="p-5 text-center relative overflow-hidden">
+            <div className="absolute -top-6 -right-6 w-20 h-20 bg-white/5 rounded-full" />
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/5 rounded-full" />
+            <Coins className="w-8 h-8 mx-auto mb-2 opacity-90" />
+            <p className="text-3xl font-bold count-animate">{user?.points}</p>
             <p className="text-sm opacity-80">نقطة</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer" onClick={() => setCurrentView('driver-available')}>
-          <CardContent className="p-4 text-center">
-            <Package className="w-8 h-8 mx-auto mb-2 opacity-80" />
-            <p className="text-3xl font-bold">{availableCount}</p>
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white hover-lift cursor-pointer" style={{ animationDelay: '0.1s' }} onClick={() => setCurrentView('driver-available')}>
+          <CardContent className="p-5 text-center relative overflow-hidden">
+            <div className="absolute -top-6 -right-6 w-20 h-20 bg-white/5 rounded-full" />
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/5 rounded-full" />
+            <Package className="w-8 h-8 mx-auto mb-2 opacity-90" />
+            <p className="text-3xl font-bold count-animate">{availableCount}</p>
             <p className="text-sm opacity-80">طلب متاح</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-0 shadow-md">
+      <Card className="border-0 shadow-md hover-lift overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-indigo-600 via-purple-500 to-indigo-400" />
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Truck className="w-5 h-5 text-indigo-600" />
@@ -1398,16 +1551,22 @@ function DriverDashboard() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-16 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ) : myActiveDeliveries.length === 0 ? (
-            <p className="text-center text-gray-400 py-4">مفيش توصيلات نشطة</p>
+            <div className="text-center py-6">
+              <Truck className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-400 text-sm">مفيش توصيلات نشطة</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {myActiveDeliveries.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-sm">{order.shop?.name}</p>
-                    <p className="text-xs text-gray-500">{order.deliveryAddress}</p>
+                <div key={order.id} className="flex items-center justify-between p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 hover:border-indigo-100 transition-all">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                    <div>
+                      <p className="font-medium text-sm">{order.shop?.name}</p>
+                      <p className="text-xs text-gray-400">{order.deliveryAddress}</p>
+                    </div>
                   </div>
                   <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
                 </div>
@@ -1418,13 +1577,17 @@ function DriverDashboard() {
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-points')}>
-          <Coins className="w-5 h-5 text-indigo-600" />
-          <span className="text-sm">شراء نقاط</span>
+        <Button variant="outline" className="py-6 flex-col gap-2 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50/30 rounded-xl transition-all" onClick={() => setCurrentView('driver-points')}>
+          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+            <Coins className="w-5 h-5 text-indigo-600" />
+          </div>
+          <span className="text-sm font-medium text-gray-700">شراء نقاط</span>
         </Button>
-        <Button variant="outline" className="py-6 flex-col gap-2" onClick={() => setCurrentView('driver-available')}>
-          <Package className="w-5 h-5 text-blue-600" />
-          <span className="text-sm">الطلبات المتاحة</span>
+        <Button variant="outline" className="py-6 flex-col gap-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50/30 rounded-xl transition-all" onClick={() => setCurrentView('driver-available')}>
+          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+            <Package className="w-5 h-5 text-blue-600" />
+          </div>
+          <span className="text-sm font-medium text-gray-700">الطلبات المتاحة</span>
         </Button>
       </div>
     </div>
@@ -1537,14 +1700,16 @@ function DriverAvailableOrders() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-gray-100 rounded-xl skeleton-shimmer-rich" />
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش طلبات متاحة دلوقتي</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Package className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش طلبات متاحة دلوقتي</p>
             <p className="text-sm text-gray-300 mt-1">فضل متابع! الطلبات بتتضاف كل وقت</p>
           </CardContent>
         </Card>
@@ -1584,7 +1749,7 @@ function DriverAvailableOrders() {
                   <div className="pt-2 border-t space-y-2">
                     {/* Direct accept button */}
                     <Button
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 gap-1 h-10"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 gap-1 h-10 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                       disabled={submitting[order.id] || !canAfford}
                       onClick={() => handleDirectAccept(order.id, shopPrice)}
                     >
@@ -1691,14 +1856,16 @@ function DriverMyOffers() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-20 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : offers.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <ClipboardList className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">معملتش عروض لسه</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <ClipboardList className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">معملتش عروض لسه</p>
           </CardContent>
         </Card>
       ) : (
@@ -1763,14 +1930,16 @@ function DriverMyDeliveries() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-24 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Truck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش توصيلات لسه</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Truck className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش توصيلات لسه</p>
           </CardContent>
         </Card>
       ) : (
@@ -1801,7 +1970,7 @@ function DriverMyDeliveries() {
                       </Button>
                     )}
                     {order.status === 'PICKED_UP' && (
-                      <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700" onClick={() => updateStatus(order.id, 'DELIVERED')}>
+                      <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => updateStatus(order.id, 'DELIVERED')}>
                         تم التوصيل ✅
                       </Button>
                     )}
@@ -1941,29 +2110,43 @@ function DriverPoints() {
       </div>
 
       {/* Points balance card */}
-      <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
-        <CardContent className="p-6 text-center">
-          <Coins className="w-12 h-12 mx-auto mb-3 opacity-80" />
-          <p className="text-4xl font-bold">{currentPoints}</p>
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white overflow-hidden relative hover-lift">
+        <CardContent className="p-6 text-center relative">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full animate-breathe" />
+          <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white/5 rounded-full" />
+          <Coins className="w-12 h-12 mx-auto mb-3 opacity-90" />
+          <p className="text-4xl font-bold count-animate">{currentPoints}</p>
           <p className="text-lg opacity-80">نقطة</p>
           <p className="text-sm opacity-60 mt-2">خصم عمولة لما المحل يقبل عرضك</p>
         </CardContent>
       </Card>
 
       {/* How it works */}
-      <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-50">
-        <CardContent className="p-4">
-          <h3 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
+      <Card className="border-0 shadow-md overflow-hidden relative hover-lift">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-amber-400 via-orange-500 to-amber-400" />
+        <CardContent className="p-4 bg-amber-50">
+          <h3 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
+            <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-4 h-4 text-amber-700" />
+            </div>
             إزاي تشتري نقاط؟
           </h3>
-          <ol className="text-sm text-amber-800 space-y-1.5 list-decimal list-inside">
-            <li>اختار طريقة الدفع (فودافون كاش / إنستاباي / أورنج كاش)</li>
-            <li>حوّل المبلغ على رقم الأدمن اللي مكتوب</li>
-            <li>اكتب بيانات التحويل (اسمك ورقم التليفون ورقم الإيصال)</li>
-            <li>استنى الأدمن يعتمد الطلب والنقاط هتتنزل تلقائي</li>
-          </ol>
-          <div className="mt-3 p-2 bg-amber-100 rounded-lg text-xs text-amber-700 text-center">
+          <div className="space-y-2">
+            {[
+              { num: 1, text: 'اختار طريقة الدفع (فودافون كاش / إنستاباي / أورنج كاش)' },
+              { num: 2, text: 'حوّل المبلغ على رقم الأدمن اللي مكتوب' },
+              { num: 3, text: 'اكتب بيانات التحويل (اسمك ورقم التليفون ورقم الإيصال)' },
+              { num: 4, text: 'استنى الأدمن يعتمد الطلب والنقاط هتتنزل تلقائي' },
+            ].map((step) => (
+              <div key={step.num} className="flex items-start gap-2.5 text-sm">
+                <div className="w-5 h-5 bg-amber-200 text-amber-800 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">
+                  {step.num}
+                </div>
+                <span className="text-amber-800">{step.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 p-2.5 bg-amber-100/70 rounded-lg text-xs text-amber-700 text-center font-medium">
             سعر النقطة: {pointPrice} ج.م | مثال: 10 نقاط = {10 * pointPrice} ج.م
           </div>
         </CardContent>
@@ -1990,7 +2173,7 @@ function DriverPoints() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                <div className="mt-3 p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 flex items-center justify-between">
                   <div>
                     <p className="text-xs text-gray-400">رقم الحساب</p>
                     <p className="font-bold text-gray-900 text-lg tracking-wider" dir="ltr">{method.accountPhone}</p>
@@ -2015,20 +2198,21 @@ function DriverPoints() {
       {/* Buy points button / form */}
       {!showPaymentForm ? (
         <Button
-          className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 gap-2 py-6 text-lg"
+          className="w-full bg-gradient-to-l from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all gap-2 py-6 text-lg shadow-indigo-200/50"
           onClick={() => setShowPaymentForm(true)}
         >
           <ShoppingCart className="w-5 h-5" /> اشتري نقاط دلوقتي
         </Button>
       ) : (
-        <Card className="border-0 shadow-md border-t-4 border-t-indigo-500">
+        <Card className="border-0 shadow-md hover-lift overflow-hidden relative">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-indigo-600 via-purple-500 to-indigo-400" />
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
                 <ShoppingCart className="w-5 h-5 text-indigo-600" />
                 طلب شراء نقاط
               </CardTitle>
-              <Button variant="ghost" size="icon" onClick={() => setShowPaymentForm(false)}>
+              <Button variant="ghost" size="icon" onClick={() => setShowPaymentForm(false)} className="hover:bg-gray-100 rounded-xl">
                 <X className="w-4 h-4" />
               </Button>
             </div>
@@ -2044,7 +2228,7 @@ function DriverPoints() {
                       key={amount}
                       type="button"
                       variant={purchaseAmount === String(amount) ? 'default' : 'outline'}
-                      className={purchaseAmount === String(amount) ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+                      className={purchaseAmount === String(amount) ? 'bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all' : ''}
                       onClick={() => setPurchaseAmount(String(amount))}
                     >
                       {amount}
@@ -2126,7 +2310,7 @@ function DriverPoints() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800"
+                className="w-full bg-gradient-to-l from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                 disabled={submitting || !purchaseAmount || !selectedMethod}
               >
                 {submitting ? '⏳ جاري الإرسال...' : 'إرسال طلب الدفع'}
@@ -2150,7 +2334,7 @@ function DriverPoints() {
             <ScrollArea className="max-h-64">
               <div className="space-y-2">
                 {myPayments.map((payment) => (
-                  <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={payment.id} className="flex items-center justify-between p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm">{payment.amount} نقطة</span>
@@ -2182,7 +2366,7 @@ function DriverPoints() {
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+                <div key={i} className="h-10 bg-gray-100 rounded skeleton-shimmer-rich" />
               ))}
             </div>
           ) : transactions.length === 0 ? (
@@ -2294,14 +2478,16 @@ function AdminPayments() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-32 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : payments.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <Wallet className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش طلبات دفع {filter === 'PENDING' ? 'في الانتظار' : ''}</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Wallet className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش طلبات دفع {filter === 'PENDING' ? 'في الانتظار' : ''}</p>
           </CardContent>
         </Card>
       ) : (
@@ -2326,7 +2512,7 @@ function AdminPayments() {
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 text-sm">
                   <div>
                     <p className="text-xs text-gray-400">عدد النقاط</p>
                     <p className="font-bold text-indigo-600 text-lg">{payment.amount} نقطة</p>
@@ -2367,7 +2553,7 @@ function AdminPayments() {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1"
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                         onClick={() => handleAction(payment.id, 'APPROVED')}
                       >
                         <CheckCircle className="w-4 h-4" /> قبول وإضافة النقاط
@@ -2459,14 +2645,16 @@ function AdminApprovals() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-32 bg-gray-100 rounded-lg skeleton-shimmer-rich" />
           ))}
         </div>
       ) : pendingUsers.length === 0 ? (
-        <Card className="border-0 shadow-md">
-          <CardContent className="py-12 text-center">
-            <UserPlus className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400">مفيش طلبات تسجيل جديدة</p>
+        <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+          <CardContent className="py-10 text-center">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <UserPlus className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-400 text-sm">مفيش طلبات تسجيل جديدة</p>
             <p className="text-sm text-gray-300 mt-1">لما حد يسجل جديد، هتظهر طلبو هنا</p>
           </CardContent>
         </Card>
@@ -2492,7 +2680,7 @@ function AdminApprovals() {
                   <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">في الانتظار</Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100 text-sm">
                   <div>
                     <p className="text-xs text-gray-400">رقم التليفون</p>
                     <p className="font-medium" dir="ltr">{user.phone}</p>
@@ -2509,7 +2697,7 @@ function AdminApprovals() {
 
                 <div className="flex gap-2 pt-2 border-t">
                   <Button
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1"
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-1 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
                     onClick={() => handleApprove(user.id)}
                   >
                     <CheckCircle className="w-4 h-4" /> قبول التسجيل
@@ -2582,45 +2770,55 @@ function AdminEarnings() {
       {loading ? (
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 rounded-xl skeleton-shimmer-rich" />
           ))}
         </div>
       ) : (
         <>
           {/* Main stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
-              <CardContent className="p-4 text-center">
-                <DollarSign className="w-7 h-7 mx-auto mb-1 opacity-80" />
-                <p className="text-2xl font-bold">{data?.totalCommission?.toFixed(2) || '0'}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 entrance-group">
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white hover-lift overflow-hidden" style={{ animationDelay: '0.05s' }}>
+              <CardContent className="p-4 text-center relative">
+                <div className="absolute -top-6 -right-6 w-16 h-16 bg-white/5 rounded-full" />
+                <DollarSign className="w-7 h-7 mx-auto mb-1 opacity-90" />
+                <p className="text-2xl font-bold count-animate">{data?.totalCommission?.toFixed(2) || '0'}</p>
                 <p className="text-xs opacity-80">إجمالي العمولة (ج.م)</p>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md hover-lift overflow-hidden relative" style={{ animationDelay: '0.1s' }}>
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-blue-400 to-cyan-500" />
               <CardContent className="p-4 text-center">
-                <TrendingUp className="w-7 h-7 mx-auto mb-1 text-blue-500" />
-                <p className="text-2xl font-bold text-gray-900">{data?.monthCommission?.toFixed(2) || '0'}</p>
+                <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-1">
+                  <TrendingUp className="w-4 h-4 text-blue-500" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900 count-animate">{data?.monthCommission?.toFixed(2) || '0'}</p>
                 <p className="text-xs text-gray-500">عمولة الشهر (ج.م)</p>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md hover-lift overflow-hidden relative" style={{ animationDelay: '0.15s' }}>
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-orange-400 to-amber-500" />
               <CardContent className="p-4 text-center">
-                <Package className="w-7 h-7 mx-auto mb-1 text-orange-500" />
-                <p className="text-2xl font-bold text-gray-900">{data?.totalDeliveries || 0}</p>
+                <div className="w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-1">
+                  <Package className="w-4 h-4 text-orange-500" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900 count-animate">{data?.totalDeliveries || 0}</p>
                 <p className="text-xs text-gray-500">توصيلات مكتملة</p>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-md">
+            <Card className="border-0 shadow-md hover-lift overflow-hidden relative" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-l from-amber-400 to-yellow-500" />
               <CardContent className="p-4 text-center">
-                <Clock className="w-7 h-7 mx-auto mb-1 text-amber-500" />
-                <p className="text-2xl font-bold text-gray-900">{data?.todayCommission?.toFixed(2) || '0'}</p>
+                <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-1">
+                  <Clock className="w-4 h-4 text-amber-500" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900 count-animate">{data?.todayCommission?.toFixed(2) || '0'}</p>
                 <p className="text-xs text-gray-500">عمولة النهارده (ج.م)</p>
               </CardContent>
             </Card>
           </div>
 
           {/* How commission works */}
-          <Card className="border-0 shadow-md bg-gradient-to-br from-rose-50 to-pink-50">
+          <Card className="border-0 shadow-md bg-rose-50">
             <CardContent className="p-4">
               <h3 className="font-bold text-indigo-900 mb-2">إزاي العمولة بتشتغل؟</h3>
               <div className="space-y-2 text-sm text-indigo-800">
@@ -2653,7 +2851,7 @@ function AdminEarnings() {
               <CardContent>
                 <div className="space-y-2">
                   {data.earningsByShop.map((item) => (
-                    <div key={item.shopId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={item.shopId} className="flex items-center justify-between p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{shopTypeIcons[item.shop?.type] || '🏪'}</span>
                         <div>
@@ -2685,7 +2883,7 @@ function AdminEarnings() {
                 <ScrollArea className="max-h-96">
                   <div className="space-y-2">
                     {data.recentEarnings.map((earning) => (
-                      <div key={earning.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={earning.id} className="flex items-center justify-between p-3 bg-gradient-to-l from-gray-50 to-white rounded-xl border border-gray-100">
                         <div>
                           <p className="text-sm font-medium">{earning.order?.description || 'طلب'}</p>
                           <p className="text-xs text-gray-400">
@@ -2705,10 +2903,12 @@ function AdminEarnings() {
           )}
 
           {(!data?.recentEarnings || data.recentEarnings.length === 0) && (
-            <Card className="border-0 shadow-md">
-              <CardContent className="py-12 text-center">
-                <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-400">مفيش أرباح لسه</p>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50/50 to-white">
+              <CardContent className="py-10 text-center">
+                <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <DollarSign className="w-7 h-7 text-gray-300" />
+                </div>
+                <p className="text-gray-400 text-sm">مفيش أرباح لسه</p>
                 <p className="text-sm text-gray-300 mt-1">لما يتم توصيل طلبات، هتظهر الأرباح هنا</p>
               </CardContent>
             </Card>
@@ -2774,7 +2974,7 @@ function AdminPaymentSettings() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-gray-100 rounded-xl skeleton-shimmer-rich" />
           ))}
         </div>
       ) : (
@@ -2860,7 +3060,7 @@ function AdminPaymentSettings() {
           ))}
 
           <Button
-            className="w-full bg-gradient-to-l from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 h-11"
+            className="w-full bg-gradient-to-l from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all h-11"
             disabled={saving}
             onClick={handleSave}
           >
@@ -2993,29 +3193,34 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50/40 bg-dots">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50/70 via-white to-violet-50/40 bg-grid-pattern">
       <Sidebar />
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-white/20">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-gray-100">
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="hover:bg-gray-100 rounded-xl">
           <Menu className="w-5 h-5" />
         </Button>
-        <div className="flex items-center gap-2">
-          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-            isAdmin ? 'bg-gradient-to-br from-red-100 to-red-200' : isShop ? 'bg-gradient-to-br from-blue-100 to-indigo-200' : 'bg-gradient-to-br from-emerald-100 to-teal-200'
+        <div className="flex items-center gap-2.5">
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm ${
+            isAdmin ? 'bg-gradient-to-br from-indigo-100 to-purple-100' : isShop ? 'bg-gradient-to-br from-blue-100 to-indigo-100' : 'bg-gradient-to-br from-emerald-100 to-teal-100'
           }`}>
-            {isAdmin ? <Settings className="w-4 h-4 text-red-600" /> :
+            {isAdmin ? <Settings className="w-4 h-4 text-indigo-600" /> :
              isShop ? <Store className="w-4 h-4 text-blue-600" /> :
-             <Truck className="w-4 h-4 text-indigo-600" />}
+             <Truck className="w-4 h-4 text-emerald-600" />}
           </div>
-          <span className="font-bold text-sm">{user.name}</span>
+          <div>
+            <span className="font-bold text-sm text-gray-900">{user.name}</span>
+            <p className="text-[10px] text-gray-400 -mt-0.5">{isAdmin ? 'أدمن' : isShop ? 'شوب' : 'دليفري'}</p>
+          </div>
         </div>
         <div className="w-10" />
       </div>
       {/* Main content */}
       <main className="lg:mr-64 pt-16 lg:pt-0 p-4 lg:p-8 min-h-screen">
-        <div className="max-w-4xl mx-auto animate-fade-in">
-          {renderView()}
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-fade-in" key={currentView}>
+            {renderView()}
+          </div>
         </div>
       </main>
     </div>
