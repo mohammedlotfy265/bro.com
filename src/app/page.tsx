@@ -18,7 +18,8 @@ import {
   Store, Truck, Users, Package, Coins, LogOut, Menu, X, Plus, CheckCircle,
   XCircle, Clock, MapPin, Phone, Star, TrendingUp, ShoppingCart, ArrowLeft,
   Home as HomeIcon, ClipboardList, DollarSign, Gift, ChevronLeft, Settings, UserPlus,
-  Building2, CircleDot, Wallet, CreditCard, Copy, Check
+  Building2, CircleDot, Wallet, CreditCard, Copy, Check, Send, Shield,
+  Sparkles, BadgeCheck, Lightbulb, ArrowRight, ExternalLink, HelpCircle
 } from 'lucide-react';
 
 // ============== API HELPERS ==============
@@ -120,17 +121,26 @@ function LoginView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 relative overflow-hidden">
+      {/* Decorative floating elements */}
+      <div className="absolute top-10 left-10 w-64 h-64 bg-emerald-200/30 rounded-full blur-3xl animate-float-slow" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-200/20 rounded-full blur-3xl animate-float" />
+      <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-emerald-300/15 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-teal-300/15 rounded-full blur-2xl animate-float-slow" style={{ animationDelay: '4s' }} />
+
+      <div className="w-full max-w-md relative animate-fade-in">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Truck className="w-10 h-10 text-white" />
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-emerald-400/20 rounded-2xl blur-xl animate-pulse-glow" />
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg relative animate-scale-in">
+              <Truck className="w-10 h-10 text-white" />
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">دليفري برو</h1>
           <p className="text-gray-500 mt-2">نظام التوصيل الذكي</p>
         </div>
 
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-xl border-0 glass backdrop-blur-xl card-hover">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-xl">تسجيل الدخول</CardTitle>
             <CardDescription>ادخل رقم التليفون والباسورد</CardDescription>
@@ -374,10 +384,10 @@ function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="border-0 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+        {statCards.map((stat, i) => (
+          <Card key={stat.label} className="border-0 shadow-md card-hover cursor-pointer" style={{ animation: `fade-in-up 0.5s ease-out ${i * 0.08}s forwards`, opacity: 0 }}>
             <CardContent className="p-4">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-md`}>
                 <stat.icon className="w-5 h-5 text-white" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
@@ -2878,16 +2888,16 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50/30">
       <Sidebar />
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-sm z-30 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-white/20">
         <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
           <Menu className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-2">
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-            isAdmin ? 'bg-red-100' : isShop ? 'bg-blue-100' : 'bg-emerald-100'
+            isAdmin ? 'bg-gradient-to-br from-red-100 to-red-200' : isShop ? 'bg-gradient-to-br from-blue-100 to-indigo-200' : 'bg-gradient-to-br from-emerald-100 to-teal-200'
           }`}>
             {isAdmin ? <Settings className="w-4 h-4 text-red-600" /> :
              isShop ? <Store className="w-4 h-4 text-blue-600" /> :
@@ -2898,22 +2908,12 @@ function AppContent() {
         <div className="w-10" />
       </div>
       {/* Main content */}
-      <main className="lg:mr-64 pt-16 lg:pt-0 p-4 lg:p-6 min-h-screen">
-        <div className="max-w-4xl mx-auto">
+      <main className="lg:mr-64 pt-16 lg:pt-0 p-4 lg:p-8 min-h-screen">
+        <div className="max-w-4xl mx-auto animate-fade-in">
           {renderView()}
         </div>
       </main>
     </div>
-  );
-}
-
-// Missing Send icon import replacement
-function Send({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="m22 2-7 20-4-9-9-4Z"/>
-      <path d="M22 2 11 13"/>
-    </svg>
   );
 }
 
