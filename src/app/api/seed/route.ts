@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS "payment_method_settings" (
     icon TEXT NOT NULL DEFAULT '📱',
     color TEXT NOT NULL DEFAULT 'from-red-500 to-red-600',
     "accountName" TEXT NOT NULL DEFAULT 'المدير',
-    "accountPhone" TEXT NOT NULL DEFAULT '01000000000',
+    "accountPhone" TEXT NOT NULL DEFAULT '01229893053',
     instructions TEXT NOT NULL DEFAULT '',
     active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -137,7 +137,7 @@ export async function POST() {
     const admin = await db.user.create({
       data: {
         name: 'المدير',
-        phone: '01000000000',
+        phone: '01229893053',
         password: adminPassword,
         role: 'ADMIN',
         points: 999,
@@ -148,9 +148,9 @@ export async function POST() {
     const existingMethods = await db.paymentMethodSetting.count();
     if (existingMethods === 0) {
       const defaults = [
-        { id: 'VODAFONE_CASH', name: 'فودافون كاش', icon: '📱', color: 'from-red-500 to-red-600', accountName: 'المدير', accountPhone: '01000000000', instructions: 'حوّل المبلغ على رقم فودافون كاش ده واكتب رقم الإيصال' },
-        { id: 'INSTAPAY', name: 'إنستاباي', icon: '💳', color: 'from-purple-500 to-indigo-600', accountName: 'المدير', accountPhone: '01000000000', instructions: 'حوّل المبلغ على حساب إنستاباي ده واكتب رقم العملية' },
-        { id: 'ORANGE_CASH', name: 'أورنج كاش', icon: '🍊', color: 'from-orange-500 to-amber-600', accountName: 'المدير', accountPhone: '01000000000', instructions: 'حوّل المبلغ على رقم أورنج كاش ده واكتب رقم الإيصال' },
+        { id: 'VODAFONE_CASH', name: 'فودافون كاش', icon: '📱', color: 'from-red-500 to-red-600', accountName: 'المدير', accountPhone: '01229893053', instructions: 'حوّل المبلغ على رقم فودافون كاش ده واكتب رقم الإيصال' },
+        { id: 'INSTAPAY', name: 'إنستاباي', icon: '💳', color: 'from-purple-500 to-indigo-600', accountName: 'المدير', accountPhone: '01229893053', instructions: 'حوّل المبلغ على حساب إنستاباي ده واكتب رقم العملية' },
+        { id: 'ORANGE_CASH', name: 'أورنج كاش', icon: '🍊', color: 'from-orange-500 to-amber-600', accountName: 'المدير', accountPhone: '01229893053', instructions: 'حوّل المبلغ على رقم أورنج كاش ده واكتب رقم الإيصال' },
       ];
       for (const d of defaults) {
         await db.paymentMethodSetting.create({ data: d });
@@ -161,7 +161,7 @@ export async function POST() {
     return NextResponse.json({
       message: 'تم تهيئة قاعدة البيانات بنجاح',
       accounts: [
-        { role: 'أدمن', phone: '01000000000' },
+        { role: 'أدمن', phone: '01229893053' },
       ],
     });
   } catch (error: any) {
