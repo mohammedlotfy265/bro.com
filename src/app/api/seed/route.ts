@@ -133,45 +133,14 @@ export async function POST() {
       return NextResponse.json({ message: 'الأدمن موجود بالفعل', admin: { phone: existingAdmin.phone } });
     }
 
+    const adminPassword = 'Br0@dm!n#2024$ecure';
     const admin = await db.user.create({
       data: {
         name: 'المدير',
         phone: '01000000000',
-        password: 'admin123',
+        password: adminPassword,
         role: 'ADMIN',
         points: 999,
-        approved: true,
-      },
-    });
-
-    const shopUser = await db.user.create({
-      data: {
-        name: 'صيدلية النور',
-        phone: '01100000000',
-        password: 'shop123',
-        role: 'SHOP',
-        points: 0,
-        approved: true,
-      },
-    });
-
-    await db.shop.create({
-      data: {
-        name: 'صيدلية النور',
-        type: 'PHARMACY',
-        address: 'شارع الجمهورية - القاهرة',
-        phone: '01100000000',
-        ownerId: shopUser.id,
-      },
-    });
-
-    await db.user.create({
-      data: {
-        name: 'أحمد الدليفري',
-        phone: '01200000000',
-        password: 'driver123',
-        role: 'DRIVER',
-        points: 10,
         approved: true,
       },
     });
@@ -190,11 +159,9 @@ export async function POST() {
     }
 
     return NextResponse.json({
-      message: 'تم إنشاء البيانات الأولية بنجاح',
+      message: 'تم تهيئة قاعدة البيانات بنجاح',
       accounts: [
-        { role: 'أدمن', phone: '01000000000', password: 'admin123' },
-        { role: 'شوب', phone: '01100000000', password: 'shop123' },
-        { role: 'دليفري', phone: '01200000000', password: 'driver123' },
+        { role: 'أدمن', phone: '01000000000' },
       ],
     });
   } catch (error: any) {

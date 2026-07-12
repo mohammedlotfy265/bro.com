@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -94,7 +93,6 @@ function LoginView() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [seeding, setSeeding] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,60 +101,9 @@ function LoginView() {
       const data = await api.post('/api/auth', { phone, password });
       if (data.error) {
         if (data.notApproved) {
-          toast({ title: 'حسابك لسه في الانتظار ⏳', description: data.error, variant: 'destructive' });
+          toast({ title: 'حسابك لسه في الانتظار', description: data.error, variant: 'destructive' });
         } else {
           toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
-        }
-      } else {
-        setUser(data.user);
-        const role = data.user.role;
-        if (role === 'ADMIN') setCurrentView('admin-dashboard');
-        else if (role === 'SHOP') setCurrentView('shop-dashboard');
-        else setCurrentView('driver-dashboard');
-        toast({ title: 'أهلاً!', description: `مرحباً ${data.user.name}` });
-      }
-    } catch {
-      toast({ title: 'خطأ', description: 'حصل خطأ في الاتصال', variant: 'destructive' });
-    }
-    setLoading(false);
-  };
-
-  const handleSeed = async () => {
-    setSeeding(true);
-    try {
-      const data = await api.post('/api/seed', {});
-      if (data.message) {
-        toast({ title: 'تم!', description: data.message });
-      } else {
-        toast({ title: 'تم!', description: 'تم إنشاء البيانات الأولية. جرّب تسجيل الدخول' });
-      }
-    } catch {
-      toast({ title: 'خطأ', description: 'حصل خطأ', variant: 'destructive' });
-    }
-    setSeeding(false);
-  };
-
-  const handleQuickLogin = async (quickPhone: string, quickPassword: string) => {
-    setLoading(true);
-    try {
-      const data = await api.post('/api/auth', { phone: quickPhone, password: quickPassword });
-      if (data.error) {
-        // Try seeding first then login
-        await api.post('/api/seed', {});
-        const retryData = await api.post('/api/auth', { phone: quickPhone, password: quickPassword });
-        if (retryData.error) {
-          if (retryData.notApproved) {
-            toast({ title: 'حسابك لسه في الانتظار ⏳', description: retryData.error, variant: 'destructive' });
-          } else {
-            toast({ title: 'خطأ', description: retryData.error, variant: 'destructive' });
-          }
-        } else {
-          setUser(retryData.user);
-          const role = retryData.user.role;
-          if (role === 'ADMIN') setCurrentView('admin-dashboard');
-          else if (role === 'SHOP') setCurrentView('shop-dashboard');
-          else setCurrentView('driver-dashboard');
-          toast({ title: 'أهلاً!', description: `مرحباً ${retryData.user.name}` });
         }
       } else {
         setUser(data.user);
@@ -233,58 +180,6 @@ function LoginView() {
               >
                 حساب جديد
               </Button>
-            </div>
-
-            <Separator className="my-4" />
-
-            <div className="text-center">
-              <p className="text-xs text-gray-400 mb-2">أول مرة تستخدم التطبيق؟</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSeed}
-                disabled={seeding}
-                className="text-xs"
-              >
-                {seeding ? 'جاري التجهيز...' : 'إنشاء بيانات تجريبية'}
-              </Button>
-              <div className="mt-4 space-y-2">
-                <p className="text-xs text-gray-400 font-semibold">أو ادخل بسرعة:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs border-red-200 text-red-700 hover:bg-red-50"
-                    disabled={loading}
-                    onClick={() => handleQuickLogin('01000000000', 'admin123')}
-                  >
-                    👑 أدمن
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
-                    disabled={loading}
-                    onClick={() => handleQuickLogin('01100000000', 'shop123')}
-                  >
-                    🏪 شوب
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                    disabled={loading}
-                    onClick={() => handleQuickLogin('01200000000', 'driver123')}
-                  >
-                    🚚 دليفري
-                  </Button>
-                </div>
-                <div className="p-2 bg-gray-50 rounded-lg text-xs text-gray-400 space-y-0.5 text-right">
-                  <p>أدمن: 01000000000 / admin123</p>
-                  <p>شوب: 01100000000 / shop123</p>
-                  <p>دليفري: 01200000000 / driver123</p>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
