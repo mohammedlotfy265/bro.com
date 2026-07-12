@@ -287,8 +287,8 @@ function RegisterView() {
             <CardContent className="pt-8 px-6 pb-8">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">الاسم</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="اسمك" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
+                  <Label className="text-sm font-medium text-gray-700">{role === 'SHOP' ? 'اسم المحل' : 'الاسم'}</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={role === 'SHOP' ? 'اسم المحل' : 'اسمك'} className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">رقم التليفون</Label>

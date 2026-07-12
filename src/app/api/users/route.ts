@@ -129,8 +129,24 @@ export async function PATCH(request: Request) {
     const user = await db.user.update({
       where: { id: userId },
       data: updateData,
-      select: { id: true, name: true, active: true, approved: true },
+      select: { id: true, name: true, role: true, phone: true, active: true, approved: true },
     });
+
+    // Auto-create shop when approving a SHOP user
+    if (approved === true && user.role === 'SHOP') {
+      const existingShop = await db.shop.findFirst({ where: { ownerId: userId } });
+      if (!existingShop) {
+        await db.shop.create({
+          data: {
+            name: user.name,
+            type: 'OTHER',
+            address: user.phone,
+            phone: user.phone,
+            ownerId: userId,
+          },
+        });
+      }
+    }
 
     return NextResponse.json({ user });
   } catch (error) {
