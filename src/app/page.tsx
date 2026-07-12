@@ -1252,19 +1252,6 @@ function ShopCreateOrder() {
                   className="pr-10"
                 />
               </div>
-              {deliveryFee && parseFloat(deliveryFee) > 0 && (
-                <div className="p-2.5 bg-amber-50 rounded-lg text-xs space-y-1">
-                  <p className="font-medium text-amber-800">توزيع الرسوم:</p>
-                  <div className="flex justify-between text-amber-700">
-                    <span>عمولة المنصة (10%)</span>
-                    <span className="font-bold">{(parseFloat(deliveryFee) * 0.10).toFixed(2)} ج.م</span>
-                  </div>
-                  <div className="flex justify-between text-blue-700">
-                    <span>أرباح الدليفري (90%)</span>
-                    <span className="font-bold">{(parseFloat(deliveryFee) * 0.90).toFixed(2)} ج.م</span>
-                  </div>
-                </div>
-              )}
             </div>
             <Button
               type="submit"
