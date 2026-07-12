@@ -141,7 +141,7 @@ export async function PATCH(request: Request) {
     const user = await db.user.update({
       where: { id: userId },
       data: updateData,
-      select: { id: true, name: true, role: true, phone: true, active: true, approved: true },
+      select: { id: true, name: true, role: true, phone: true, address: true, active: true, approved: true },
     });
 
     // Auto-create shop when approving a SHOP user
@@ -152,7 +152,7 @@ export async function PATCH(request: Request) {
           data: {
             name: user.name,
             type: 'OTHER',
-            address: user.phone,
+            address: user.address || user.phone,
             phone: user.phone,
             ownerId: userId,
           },

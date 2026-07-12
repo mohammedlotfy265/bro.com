@@ -5,10 +5,14 @@ import { db } from '@/lib/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, phone, password, role } = body;
+    const { name, phone, password, role, address } = body;
 
     if (!name || !phone || !password || !role) {
       return NextResponse.json({ error: 'كل البيانات مطلوبة' }, { status: 400 });
+    }
+
+    if (role === 'SHOP' && !address) {
+      return NextResponse.json({ error: 'عنوان المحل مطلوب' }, { status: 400 });
     }
 
     if (!['SHOP', 'DRIVER'].includes(role)) {
@@ -21,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     const user = await db.user.create({
-      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0, approved: false },
+      data: { name, phone, password, role, points: role === 'DRIVER' ? 5 : 0, approved: false, address: address || null },
     });
 
     const { password: _, ...userWithoutPassword } = user;

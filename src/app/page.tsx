@@ -247,13 +247,14 @@ function RegisterView() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('DRIVER');
+  const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await api.post('/api/auth/register', { name, phone, password, role });
+      const data = await api.post('/api/auth/register', { name, phone, password, role, address });
       if (data.error) {
         toast({ title: 'خطأ', description: data.error, variant: 'destructive' });
       } else {
@@ -294,6 +295,12 @@ function RegisterView() {
                   <Label className="text-sm font-medium text-gray-700">رقم التليفون</Label>
                   <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01xxxxxxxxx" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
                 </div>
+                {role === 'SHOP' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">عنوان المحل بالتفصيل</Label>
+                    <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="مثلاً: 12 شارع السعادة، مدينة نصر، القاهرة" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">الباسورد</Label>
                   <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-300 transition-all h-11" required />
