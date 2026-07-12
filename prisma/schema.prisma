@@ -25,6 +25,7 @@ model User {
   ordersCreated       Order[]              @relation("OrderCreator")
   ordersAccepted      Order[]              @relation("AcceptedDriver")
   paymentRequests     PaymentRequest[]
+  notifications       Notification[]
 
   @@map("users")
 }
@@ -155,4 +156,19 @@ model AppSetting {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("app_settings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  type      String   @default("info")
+  relatedId String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
 }

@@ -57,7 +57,7 @@ export async function PATCH(
       // Deduct 10% of offer price as commission (in points)
       const driver = await db.user.findUnique({ where: { id: offer.driverId } });
       if (driver && driver.points > 0) {
-        const commissionPoints = Math.max(1, Math.ceil(offer.price * 0.10)); // 10% of offer price
+        const commissionPoints = Math.max(1, Math.ceil(offer.price * 0.10));
         const actualDeduction = Math.min(commissionPoints, driver.points);
 
         await db.user.update({
@@ -74,6 +74,24 @@ export async function PATCH(
           },
         });
       }
+
+      // Notify shop owner that a driver accepted their order
+      const fullOrder = await db.order.findUnique({
+        where: { id: offer.orderId },
+        include: { shop: { select: { ownerId: true } } },
+      });
+      if (fullOrder) {
+        await db.notification.create({
+          data: {
+            userId: fullOrder.shop.ownerId,
+            title: 'تم قبول طلب التوصيل',
+            body: `قام ${updatedOffer.driver.name} بقبول طلب التوصيل (${offer.price} ج.م)`,
+            type: 'offer_accepted',
+            relatedId: offer.orderId,
+          },
+        });
+      }
+    }
     }
 
     return NextResponse.json({ offer: updatedOffer });

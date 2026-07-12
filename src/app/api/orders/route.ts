@@ -77,6 +77,21 @@ export async function POST(request: Request) {
       },
     });
 
+    // Notify all active drivers about the new order
+    const drivers = await db.user.findMany({ where: { role: 'DRIVER', active: true }, select: { id: true } });
+    const shopName = order.shop?.name || 'المحل';
+    for (const driver of drivers) {
+      await db.notification.create({
+        data: {
+          userId: driver.id,
+          title: 'طلب توصيل جديد',
+          body: `طلب جديد من ${shopName}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+          type: 'new_order',
+          relatedId: order.id,
+        },
+      });
+    }
+
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
     console.error('Create order error:', error);

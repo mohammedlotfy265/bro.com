@@ -118,6 +118,17 @@ CREATE TABLE IF NOT EXISTS "app_settings" (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS "notifications" (
+    id TEXT PRIMARY KEY,
+    "userId" TEXT NOT NULL REFERENCES users(id),
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'info',
+    "relatedId" TEXT,
+    read BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 `;
 
 export async function POST() {

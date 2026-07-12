@@ -2872,9 +2872,89 @@ function AdminPaymentSettings() {
   );
 }
 
+// ============== NOTIFICATION SOUND ==============
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    const now = ctx.currentTime;
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.setValueAtTime(1108, now + 0.1);
+    osc.frequency.setValueAtTime(1318, now + 0.2);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  } catch {}
+}
+
+function playOfferSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    for (let i = 0; i < 3; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.15;
+      osc.frequency.setValueAtTime(660, t);
+      osc.frequency.setValueAtTime(880, t + 0.08);
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+      osc.start(t);
+      osc.stop(t + 0.15);
+    }
+  } catch {}
+}
+
 // ============== MAIN APP ==============
 function AppContent() {
   const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
+  const [lastNotifId, setLastNotifId] = useState<string>('');
+
+  const checkNotifications = useCallback(async () => {
+    if (!user || user.role === 'ADMIN') return;
+    try {
+      const data = await api.get(`/api/notifications?userId=${user.id}&unreadOnly=true`);
+      if (data.notifications && data.notifications.length > 0) {
+        const newest = data.notifications[0];
+        if (newest.id !== lastNotifId) {
+          setLastNotifId(newest.id);
+          // Show browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(newest.title, { body: newest.body, icon: '/favicon.ico' });
+          }
+          if (newest.type === 'new_order') {
+            playNotificationSound();
+          } else if (newest.type === 'offer_accepted') {
+            playOfferSound();
+          } else {
+            playNotificationSound();
+          }
+        }
+      }
+    } catch {}
+  }, [user, lastNotifId]);
+
+  const requestNotifPermission = useCallback(async () => {
+    if (user && user.role !== 'ADMIN' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    requestNotifPermission();
+    if (user && user.role !== 'ADMIN') {
+      checkNotifications();
+      const interval = setInterval(checkNotifications, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [user, checkNotifications, requestNotifPermission]);
 
   if (!user) {
     if (currentView === 'register') return <RegisterView />;
