@@ -120,7 +120,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: 'تم حذف المستخدم بنجاح' });
   } catch (error) {
     console.error('Delete user error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'حصل خطأ في حذف المستخدم' }, { status: 500 });
   }
 }
 
