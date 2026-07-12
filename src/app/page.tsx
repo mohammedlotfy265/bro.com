@@ -1136,6 +1136,7 @@ function ShopCreateOrder() {
   const { user, setCurrentView } = useAppStore();
   const { toast } = useToast();
   const [myShops, setMyShops] = useState<Shop[]>([]);
+  const [loadingShops, setLoadingShops] = useState(true);
   const [description, setDescription] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -1146,12 +1147,13 @@ function ShopCreateOrder() {
     if (!user) return;
     api.get('/api/shops').then((data) => {
       if (data.shops) {
-        const filtered = data.shops.filter((s: Shop) => s.owner?.id === user.id);
+        const filtered = data.shops.filter((s: Shop) => s.owner?.id === user.id || (s as any).ownerId === user.id);
         setMyShops(filtered);
         if (filtered.length > 0) {
           setPickupAddress(filtered[0].address);
         }
       }
+      setLoadingShops(false);
     });
   }, [user]);
 
@@ -1193,19 +1195,21 @@ function ShopCreateOrder() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>المحل</Label>
-              <div className="flex items-center gap-3 p-3 bg-gradient-to-l from-indigo-50/50 to-purple-50/30 rounded-xl border border-indigo-100">
-                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
-                  {myShops.length > 0 ? (shopTypeIcons[myShops[0].type] || '🏪') : '🏪'}
-                </div>
-                <div>
-                  <p className="font-medium text-sm text-gray-900">
-                    {myShops.length > 0 ? myShops[0].name : 'لا يوجد محل'}
-                  </p>
-                  {myShops.length > 0 && (
+              {loadingShops ? (
+                <div className="h-14 bg-gray-100 rounded-xl skeleton-shimmer-rich" />
+              ) : myShops.length > 0 ? (
+                <div className="flex items-center gap-3 p-3 bg-gradient-to-l from-indigo-50/50 to-purple-50/30 rounded-xl border border-indigo-100">
+                  <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
+                    {shopTypeIcons[myShops[0].type] || '🏪'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-gray-900">{myShops[0].name}</p>
                     <p className="text-xs text-gray-400">{myShops[0].address}</p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <p className="text-sm text-red-500 py-2">مفيش محل مسجل باسمك. كلم الأدمن يضيفلك محل.</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>وصف الطلب</Label>
