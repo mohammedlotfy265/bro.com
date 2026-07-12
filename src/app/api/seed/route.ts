@@ -110,7 +110,10 @@ CREATE TABLE IF NOT EXISTS "app_settings" (
 
 export async function POST() {
   try {
-    await db.$executeRawUnsafe(CREATE_TABLES);
+    const statements = CREATE_TABLES.split(';').filter(s => s.trim());
+    for (const stmt of statements) {
+      await db.$executeRawUnsafe(stmt + ';');
+    }
 
     const existingAdmin = await db.user.findFirst({ where: { role: 'ADMIN' } });
     if (existingAdmin) {
