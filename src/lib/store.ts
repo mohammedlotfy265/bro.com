@@ -108,10 +108,13 @@ interface AppState {
   user: User | null;
   currentView: ViewType;
   sidebarOpen: boolean;
+  darkMode: boolean;
 
   setUser: (user: User | null) => void;
   setCurrentView: (view: ViewType) => void;
   setSidebarOpen: (open: boolean) => void;
+  toggleDarkMode: () => void;
+  setDarkMode: (val: boolean) => void;
   logout: () => void;
 }
 
@@ -119,9 +122,25 @@ export const useAppStore = create<AppState>((set) => ({
   user: null,
   currentView: 'login',
   sidebarOpen: false,
+  darkMode: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches,
 
   setUser: (user) => set({ user }),
   setCurrentView: (currentView) => set({ currentView, sidebarOpen: false }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+  toggleDarkMode: () => set((s) => {
+    const next = !s.darkMode;
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', next);
+    }
+    localStorage.setItem('darkMode', String(next));
+    return { darkMode: next };
+  }),
+  setDarkMode: (val) => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', val);
+    }
+    localStorage.setItem('darkMode', String(val));
+    set({ darkMode: val });
+  },
   logout: () => set({ user: null, currentView: 'login', sidebarOpen: false }),
 }));

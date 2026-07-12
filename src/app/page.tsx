@@ -19,7 +19,8 @@ import {
   XCircle, Clock, MapPin, Phone, Star, TrendingUp, ShoppingCart, ArrowLeft,
   Home as HomeIcon, ClipboardList, DollarSign, Gift, ChevronLeft, Settings, UserPlus,
   Building2, CircleDot, Wallet, CreditCard, Copy, Check, Send, Shield,
-  Sparkles, BadgeCheck, Lightbulb, ArrowRight, ExternalLink, HelpCircle, Trash2
+  Sparkles, BadgeCheck, Lightbulb, ArrowRight, ExternalLink, HelpCircle, Trash2,
+  Sun, Moon
 } from 'lucide-react';
 
 // ============== API HELPERS ==============
@@ -340,7 +341,7 @@ function RegisterView() {
 
 // ============== ADMIN SIDEBAR ==============
 function AdminSidebar() {
-  const { currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+  const { currentView, setCurrentView, sidebarOpen, setSidebarOpen, darkMode, toggleDarkMode, logout } = useAppStore();
 
   const menuItems = [
     { id: 'admin-dashboard', label: 'الرئيسية', icon: HomeIcon },
@@ -407,17 +408,31 @@ function AdminSidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
-            onClick={logout}
-          >
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-3.5 h-3.5" />
-            </div>
-            تسجيل خروج
-          </Button>
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl py-2 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+              onClick={toggleDarkMode}
+            >
+              <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </div>
+              {darkMode ? 'فاتح' : 'داكن'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2 dark:hover:bg-red-950/30"
+              onClick={logout}
+            >
+              <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                <LogOut className="w-3.5 h-3.5" />
+              </div>
+              خروج
+            </Button>
+          </div>
         </div>
       </aside>
     </>
@@ -875,7 +890,7 @@ function AdminOrders() {
                     </div>
                     {order.acceptedDriver && (
                       <p className="text-xs text-indigo-600 flex items-center gap-1">
-                        <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name}
+                        <Truck className="w-3 h-3" /> الدليفري: {order.acceptedDriver.name} - {order.acceptedDriver.phone}
                       </p>
                     )}
                     {order.offers && order.offers.length > 0 && (
@@ -912,7 +927,7 @@ function AdminOrders() {
 
 // ============== SHOP SIDEBAR ==============
 function ShopSidebar() {
-  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, darkMode, toggleDarkMode, logout } = useAppStore();
 
   const menuItems = [
     { id: 'shop-dashboard', label: 'الرئيسية', icon: HomeIcon },
@@ -973,17 +988,31 @@ function ShopSidebar() {
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
-            onClick={logout}
-          >
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-3.5 h-3.5" />
-            </div>
-            تسجيل خروج
-          </Button>
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl py-2 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+              onClick={toggleDarkMode}
+            >
+              <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </div>
+              {darkMode ? 'فاتح' : 'داكن'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2 dark:hover:bg-red-950/30"
+              onClick={logout}
+            >
+              <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                <LogOut className="w-3.5 h-3.5" />
+              </div>
+              خروج
+            </Button>
+          </div>
         </div>
       </aside>
     </>
@@ -1411,7 +1440,7 @@ function ShopOrders() {
 
 // ============== DRIVER SIDEBAR ==============
 function DriverSidebar() {
-  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, logout } = useAppStore();
+  const { user, currentView, setCurrentView, sidebarOpen, setSidebarOpen, darkMode, toggleDarkMode, logout } = useAppStore();
 
   const menuItems = [
     { id: 'driver-dashboard', label: 'الرئيسية', icon: HomeIcon },
@@ -1477,17 +1506,31 @@ function DriverSidebar() {
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2.5"
-            onClick={logout}
-          >
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-3.5 h-3.5" />
-            </div>
-            تسجيل خروج
-          </Button>
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl py-2 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+              onClick={toggleDarkMode}
+            >
+              <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </div>
+              {darkMode ? 'فاتح' : 'داكن'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 justify-start gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl py-2 dark:hover:bg-red-950/30"
+              onClick={logout}
+            >
+              <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                <LogOut className="w-3.5 h-3.5" />
+              </div>
+              خروج
+            </Button>
+          </div>
         </div>
       </aside>
     </>
@@ -3114,7 +3157,7 @@ function playOfferSound() {
 
 // ============== MAIN APP ==============
 function AppContent() {
-  const { user, currentView, sidebarOpen, setSidebarOpen } = useAppStore();
+  const { user, currentView, sidebarOpen, setSidebarOpen, darkMode, setDarkMode, toggleDarkMode } = useAppStore();
   const [lastNotifId, setLastNotifId] = useState<string>('');
 
   const checkNotifications = useCallback(async () => {
@@ -3146,6 +3189,14 @@ function AppContent() {
       Notification.requestPermission();
     }
   }, [user]);
+
+  // Initialize dark mode
+  useEffect(() => {
+    const saved = localStorage.getItem('darkMode');
+    if (saved !== null) {
+      setDarkMode(saved === 'true');
+    }
+  }, [setDarkMode]);
 
   useEffect(() => {
     requestNotifPermission();
@@ -3196,8 +3247,8 @@ function AppContent() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50/70 via-white to-violet-50/40 bg-grid-pattern">
       <Sidebar />
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-gray-100">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="hover:bg-gray-100 rounded-xl">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl shadow-sm z-30 px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:bg-gray-900/90 dark:border-gray-700">
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">
           <Menu className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-2.5">
@@ -3209,11 +3260,13 @@ function AppContent() {
              <Truck className="w-4 h-4 text-emerald-600" />}
           </div>
           <div>
-            <span className="font-bold text-sm text-gray-900">{user.name}</span>
+            <span className="font-bold text-sm text-gray-900 dark:text-gray-100">{user.name}</span>
             <p className="text-[10px] text-gray-400 -mt-0.5">{isAdmin ? 'أدمن' : isShop ? 'شوب' : 'دليفري'}</p>
           </div>
         </div>
-        <div className="w-10" />
+        <Button variant="ghost" size="icon" onClick={() => toggleDarkMode} className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">
+          {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </Button>
       </div>
       {/* Main content */}
       <main className="lg:mr-64 pt-16 lg:pt-0 p-4 lg:p-8 min-h-screen">
