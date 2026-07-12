@@ -92,7 +92,6 @@ export async function PATCH(
         });
       }
     }
-    }
 
     return NextResponse.json({ offer: updatedOffer });
   } catch (error) {
