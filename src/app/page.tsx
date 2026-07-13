@@ -141,16 +141,20 @@ function LoginView() {
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl blur-2xl animate-pulse-glow" />
             <div className="w-24 h-24 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200/50 relative overflow-hidden">
               <div className="absolute inset-0 bg-white/10 animate-breathe" />
-              <svg className="w-14 h-14 text-white relative z-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
-                <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
-                <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-                <circle cx="28" cy="74" r="4" fill="white"/>
-                <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-                <circle cx="60" cy="74" r="4" fill="white"/>
-                <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
-                <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
-                <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+              <svg className="w-14 h-14 text-white relative z-10" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 10C38 10 20 28 20 50c0 30 40 60 40 60s40-30 40-60c0-22-18-40-40-40z" fill="currentColor" opacity="0.15"/>
+                <path d="M60 20C44 20 30 34 30 50c0 24 30 46 30 46s30-22 30-46c0-16-14-30-30-30z" fill="currentColor" opacity="0.25"/>
+                <rect x="30" y="44" width="60" height="30" rx="6" fill="currentColor"/>
+                <rect x="40" y="30" width="36" height="16" rx="4" fill="currentColor" opacity="0.75"/>
+                <circle cx="38" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+                <circle cx="38" cy="74" r="4" fill="white"/>
+                <circle cx="72" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+                <circle cx="72" cy="74" r="4" fill="white"/>
+                <path d="M90 56h14l6 6h-20v-6z" fill="currentColor" opacity="0.8"/>
+                <path d="M85 52l3 4h-8l5-4z" fill="currentColor" opacity="0.6"/>
+                <rect x="82" y="68" width="18" height="6" rx="3" fill="currentColor" opacity="0.35"/>
+                <circle cx="15" cy="55" r="4" fill="currentColor" opacity="0.4"/>
+                <circle cx="105" cy="55" r="4" fill="currentColor" opacity="0.4"/>
               </svg>
             </div>
           </div>
@@ -285,16 +289,20 @@ function RegisterView() {
       <div className="w-full max-w-md relative">
         <div className="text-center mb-8 animate-fade-in-down">
           <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-indigo-200/50">
-            <svg className="w-12 h-12 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
-              <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
-              <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-              <circle cx="28" cy="74" r="4" fill="white"/>
-              <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-              <circle cx="60" cy="74" r="4" fill="white"/>
-              <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
-              <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
-              <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+            <svg className="w-12 h-12 text-white" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M60 10C38 10 20 28 20 50c0 30 40 60 40 60s40-30 40-60c0-22-18-40-40-40z" fill="currentColor" opacity="0.15"/>
+              <path d="M60 20C44 20 30 34 30 50c0 24 30 46 30 46s30-22 30-46c0-16-14-30-30-30z" fill="currentColor" opacity="0.25"/>
+              <rect x="30" y="44" width="60" height="30" rx="6" fill="currentColor"/>
+              <rect x="40" y="30" width="36" height="16" rx="4" fill="currentColor" opacity="0.75"/>
+              <circle cx="38" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+              <circle cx="38" cy="74" r="4" fill="white"/>
+              <circle cx="72" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+              <circle cx="72" cy="74" r="4" fill="white"/>
+              <path d="M90 56h14l6 6h-20v-6z" fill="currentColor" opacity="0.8"/>
+              <path d="M85 52l3 4h-8l5-4z" fill="currentColor" opacity="0.6"/>
+              <rect x="82" y="68" width="18" height="6" rx="3" fill="currentColor" opacity="0.35"/>
+              <circle cx="15" cy="55" r="4" fill="currentColor" opacity="0.4"/>
+              <circle cx="105" cy="55" r="4" fill="currentColor" opacity="0.4"/>
             </svg>
           </div>
           <h1 className="text-3xl font-bold gradient-text">حساب جديد</h1>
@@ -391,16 +399,20 @@ function AdminSidebar() {
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200/50">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
-                <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
-                <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-                <circle cx="28" cy="74" r="4" fill="white"/>
-                <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
-                <circle cx="60" cy="74" r="4" fill="white"/>
-                <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
-                <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
-                <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+              <svg className="w-6 h-6 text-white" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 10C38 10 20 28 20 50c0 30 40 60 40 60s40-30 40-60c0-22-18-40-40-40z" fill="currentColor" opacity="0.15"/>
+                <path d="M60 20C44 20 30 34 30 50c0 24 30 46 30 46s30-22 30-46c0-16-14-30-30-30z" fill="currentColor" opacity="0.25"/>
+                <rect x="30" y="44" width="60" height="30" rx="6" fill="currentColor"/>
+                <rect x="40" y="30" width="36" height="16" rx="4" fill="currentColor" opacity="0.75"/>
+                <circle cx="38" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+                <circle cx="38" cy="74" r="4" fill="white"/>
+                <circle cx="72" cy="74" r="8" fill="currentColor" opacity="0.5"/>
+                <circle cx="72" cy="74" r="4" fill="white"/>
+                <path d="M90 56h14l6 6h-20v-6z" fill="currentColor" opacity="0.8"/>
+                <path d="M85 52l3 4h-8l5-4z" fill="currentColor" opacity="0.6"/>
+                <rect x="82" y="68" width="18" height="6" rx="3" fill="currentColor" opacity="0.35"/>
+                <circle cx="15" cy="55" r="4" fill="currentColor" opacity="0.4"/>
+                <circle cx="105" cy="55" r="4" fill="currentColor" opacity="0.4"/>
               </svg>
             </div>
             <div>
