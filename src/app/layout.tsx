@@ -9,8 +9,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "دليفري برو - نظام التوصيل",
-  description: "نظام توصيل ذكي بين المحلات والدليفري بنظام النقاط",
+  title: "Deliveri Pro - Smart Delivery System",
+  description: "Smart delivery system connecting shops and drivers with a points system",
 };
 
 export default function RootLayout({

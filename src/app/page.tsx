@@ -154,8 +154,8 @@ function LoginView() {
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold gradient-text mb-1">دليفري برو</h1>
-          <p className="text-gray-400 text-sm tracking-wide">نظام التوصيل الذكي</p>
+          <h1 className="text-4xl font-bold gradient-text mb-1">Deliveri Pro</h1>
+          <p className="text-gray-400 text-sm tracking-wide">Smart Delivery System</p>
         </div>
 
         {/* Login card with gradient border */}
@@ -242,7 +242,7 @@ function LoginView() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-400 mt-8 animate-fade-in">
-          دليفري برو © {new Date().getFullYear()} — جميع الحقوق محفوظة
+          Deliveri Pro © {new Date().getFullYear()} — جميع الحقوق محفوظة
         </p>
       </div>
     </div>
@@ -404,7 +404,7 @@ function AdminSidebar() {
               </svg>
             </div>
             <div>
-              <span className="font-bold text-base text-gray-900">دليفري برو</span>
+              <span className="font-bold text-base text-gray-900">Deliveri Pro</span>
               <p className="text-[10px] text-gray-400 -mt-0.5">لوحة التحكم</p>
             </div>
           </div>
