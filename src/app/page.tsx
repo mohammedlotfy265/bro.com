@@ -139,9 +139,19 @@ function LoginView() {
         <div className="text-center mb-10 animate-fade-in-down">
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl blur-2xl animate-pulse-glow" />
-            <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200/50 relative overflow-hidden">
+            <div className="w-24 h-24 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200/50 relative overflow-hidden">
               <div className="absolute inset-0 bg-white/10 animate-breathe" />
-              <Truck className="w-10 h-10 text-white relative z-10" />
+              <svg className="w-14 h-14 text-white relative z-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
+                <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
+                <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+                <circle cx="28" cy="74" r="4" fill="white"/>
+                <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+                <circle cx="60" cy="74" r="4" fill="white"/>
+                <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
+                <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
+                <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+              </svg>
             </div>
           </div>
           <h1 className="text-4xl font-bold gradient-text mb-1">دليفري برو</h1>
@@ -274,8 +284,18 @@ function RegisterView() {
 
       <div className="w-full max-w-md relative">
         <div className="text-center mb-8 animate-fade-in-down">
-          <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-indigo-200/50">
-            <UserPlus className="w-8 h-8 text-white" />
+          <div className="w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-indigo-200/50">
+            <svg className="w-12 h-12 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
+              <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
+              <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+              <circle cx="28" cy="74" r="4" fill="white"/>
+              <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+              <circle cx="60" cy="74" r="4" fill="white"/>
+              <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
+              <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
+              <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+            </svg>
           </div>
           <h1 className="text-3xl font-bold gradient-text">حساب جديد</h1>
           <p className="text-gray-400 text-sm mt-1">أنشئ حسابك وابدأ</p>
@@ -371,7 +391,17 @@ function AdminSidebar() {
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200/50">
-              <Truck className="w-5 h-5 text-white" />
+              <svg className="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="38" width="70" height="36" rx="6" fill="currentColor" opacity="0.85"/>
+                <rect x="20" y="18" width="42" height="20" rx="4" fill="currentColor" opacity="0.6"/>
+                <circle cx="28" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+                <circle cx="28" cy="74" r="4" fill="white"/>
+                <circle cx="60" cy="74" r="8" fill="currentColor" opacity="0.4"/>
+                <circle cx="60" cy="74" r="4" fill="white"/>
+                <path d="M78 56H90L96 64H78V56Z" fill="currentColor" opacity="0.7"/>
+                <path d="M48 30L55 38H41L48 30Z" fill="currentColor" opacity="0.5"/>
+                <rect x="72" y="68" width="16" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+              </svg>
             </div>
             <div>
               <span className="font-bold text-base text-gray-900">دليفري برو</span>
